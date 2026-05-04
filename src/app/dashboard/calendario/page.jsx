@@ -237,6 +237,7 @@ function CalendarioContent() {
     const [selectionPreview, setSelectionPreview] = useState(null);
     const [selectionDraft, setSelectionDraft] = useState(null);
     const [floatingDraft, setFloatingDraft] = useState(null);
+    const [popupMode, setPopupMode] = useState("create");
     const [popupPosition, setPopupPosition] = useState({x: 0, y: 0});
     const [draggingPopup, setDraggingPopup] = useState(false);
     const [popupForm, setPopupForm] = useState({
@@ -409,6 +410,7 @@ function CalendarioContent() {
         setSelectionPreview(null);
         setSelectionDraft(null);
         setFloatingDraft(null);
+        setPopupMode("create");
         setPopupForm({
             nombrePaciente: "",
             apellidoPaciente: "",
@@ -422,6 +424,7 @@ function CalendarioContent() {
     function abrirPopupSeleccion(slotInfo) {
         const start = slotInfo.start ?? slotInfo;
         const end = slotInfo.end ?? slotInfo;
+        setPopupMode("create");
 
         setfechaInicio(formatearFechaLocal(start));
         setHoraInicio(start.toTimeString().slice(0, 8));
@@ -432,6 +435,8 @@ function CalendarioContent() {
             start,
             end,
             profesional: obtenerNombreProfesionalSeleccionado(),
+            estadoReserva: "reservada",
+            id_reserva: null,
         };
 
         setSelectionDraft(nextDraft);
@@ -461,21 +466,72 @@ function CalendarioContent() {
         });
     }
 
+    function abrirPopupReservaExistente(eventoReserva) {
+        const reserva = eventoReserva?.resource;
+        const start = eventoReserva?.start;
+        const end = eventoReserva?.end;
+
+        if (!reserva || !start || !end) {
+            toast.error("No se pudo cargar la reserva seleccionada.");
+            return;
+        }
+
+        setPopupMode("edit");
+        setid_reserva(reserva.id_reserva);
+        setNombrePaciente(reserva.nombrePaciente ?? "");
+        setApellidoPaciente(reserva.apellidoPaciente ?? "");
+        setRut(reserva.rut ?? "");
+        setTelefono(reserva.telefono ?? "");
+        setEmail(reserva.email ?? "");
+        setEstadoReserva(reserva.estadoReserva ?? "reservada");
+        setfechaInicio(formatearFechaLocal(start));
+        setHoraInicio(start.toTimeString().slice(0, 8));
+        setfechaFinalizacion(formatearFechaLocal(end));
+        setHoraFinalizacion(end.toTimeString().slice(0, 8));
+
+        setSelectionDraft({
+            start,
+            end,
+            profesional: obtenerNombreProfesionalSeleccionado(),
+            estadoReserva: reserva.estadoReserva ?? "reservada",
+            id_reserva: reserva.id_reserva,
+        });
+
+        setPopupForm({
+            nombrePaciente: reserva.nombrePaciente ?? "",
+            apellidoPaciente: reserva.apellidoPaciente ?? "",
+            rut: reserva.rut ?? "",
+            telefono: reserva.telefono ?? "",
+            email: reserva.email ?? "",
+            motivoBloqueo: "",
+        });
+
+        setFloatingDraft(null);
+        setPopupPosition({
+            x: typeof window !== "undefined" ? Math.max(16, window.innerWidth / 2 - 210) : 320,
+            y: typeof window !== "undefined" ? Math.max(90, window.innerHeight / 2 - 220) : 220,
+        });
+    }
+
     function actualizarBorradorSeleccion(start, end) {
         const nextDraft = {
             start,
             end,
             profesional: obtenerNombreProfesionalSeleccionado(),
+            estadoReserva: selectionDraft?.estadoReserva ?? "reservada",
+            id_reserva: selectionDraft?.id_reserva ?? null,
         };
 
         setSelectionDraft(nextDraft);
-        setFloatingDraft({
-            id: "draft-selection",
-            title: "Nuevo agendamiento",
-            start,
-            end,
-            tipo: "seleccion",
-        });
+        if (popupMode === "create") {
+            setFloatingDraft({
+                id: "draft-selection",
+                title: "Nuevo agendamiento",
+                start,
+                end,
+                tipo: "seleccion",
+            });
+        }
         setfechaInicio(formatearFechaLocal(start));
         setHoraInicio(start.toTimeString().slice(0, 8));
         setfechaFinalizacion(formatearFechaLocal(end));
@@ -502,7 +558,7 @@ function CalendarioContent() {
             return;
         }
 
-        if (isOverlapping(nuevoInicio, nuevoFin)) {
+        if (isOverlapping(nuevoInicio, nuevoFin, selectionDraft?.id_reserva ?? null)) {
             toast.error("Esta hora tiene un bloqueo u hora preexistente.");
             return;
         }
@@ -527,7 +583,7 @@ function CalendarioContent() {
             return;
         }
 
-        if (isOverlapping(nuevoInicio, nuevoFin)) {
+        if (isOverlapping(nuevoInicio, nuevoFin, selectionDraft?.id_reserva ?? null)) {
             toast.error("Esta hora tiene un bloqueo u hora preexistente.");
             return;
         }
@@ -721,12 +777,16 @@ function CalendarioContent() {
                     body: JSON.stringify({nombrePaciente, apellidoPaciente, rut, telefono, email: correoNormalizado, fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion, estadoReserva: "reservada" ,id_profesional})
                 });
                 const respuestaBackend = await res.json();
+                if (!res.ok && respuestaBackend.message === "conflicto") {
+                    toast.error("No puede agendar una hora que ya está ocupada.");
+                    return false;
+                }
                 if (respuestaBackend.message === true) {
                     setNombrePaciente(""); setApellidoPaciente(""); setTelefono(""); setRut(""); setEmail("");
                     await refrescarCalendario();
                     toast.success("Se ha ingresado correctamente el agendamiento");
                     return true;
-                } else if (respuestaBackend.message === "conflicto" || respuestaBackend.message.includes("conflicto")) {
+                } else if (respuestaBackend.message === "conflicto" || String(respuestaBackend.message || "").includes("conflicto")) {
                     toast.error("No puede agendar una hora que ya esta ocupada");
                     return false;
                 } else if (respuestaBackend.message === false) {
@@ -1212,11 +1272,15 @@ function CalendarioContent() {
                 mode: "cors",
                 body: JSON.stringify({nombrePaciente, apellidoPaciente, rut, telefono, email: correoNormalizado, fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion, estadoReserva, id_profesional, id_reserva})
             });
+            const respuestaBackend = await res.json();
+            if (!res.ok && respuestaBackend.message === "conflicto") {
+                toast.error("No puede mover la reserva a un horario ocupado.");
+                return false;
+            }
             if (!res.ok) {
                 toast.error("El servidor no responde");
                 return false;
             }
-            const respuestaBackend = await res.json();
             if (respuestaBackend.message === true) {
                 setNombrePaciente(""); setApellidoPaciente(""); setTelefono(""); setRut(""); setEmail("");
                 await refrescarCalendario();
@@ -1332,6 +1396,36 @@ function CalendarioContent() {
             setRut(popupForm.rut);
             setTelefono(popupForm.telefono);
             setEmail(popupForm.email);
+            limpiarSeleccionTemporal();
+        }
+    }
+
+    async function confirmarActualizacionDesdePopup() {
+        if (!selectionDraft?.id_reserva) return;
+
+        const actualizado = await actualizarInformacionReserva(
+            popupForm.nombrePaciente,
+            popupForm.apellidoPaciente,
+            popupForm.rut,
+            popupForm.telefono,
+            popupForm.email,
+            formatearFechaLocal(selectionDraft.start),
+            selectionDraft.start.toTimeString().slice(0, 8),
+            formatearFechaLocal(selectionDraft.end),
+            selectionDraft.end.toTimeString().slice(0, 8),
+            selectionDraft.estadoReserva || estadoReserva || "reservada",
+            id_profesional,
+            selectionDraft.id_reserva
+        );
+
+        if (actualizado) {
+            setNombrePaciente(popupForm.nombrePaciente);
+            setApellidoPaciente(popupForm.apellidoPaciente);
+            setRut(popupForm.rut);
+            setTelefono(popupForm.telefono);
+            setEmail(popupForm.email);
+            setEstadoReserva(selectionDraft.estadoReserva || estadoReserva || "reservada");
+            setid_reserva(selectionDraft.id_reserva);
             limpiarSeleccionTemporal();
         }
     }
@@ -1742,7 +1836,7 @@ function CalendarioContent() {
                                 if (!event?.id_reserva) { toast.error("No se encontró el ID de la reserva"); return; }
                                 setid_reserva(event.id_reserva);
                                 seleccionarReservaEspecifica(event.id_reserva);
-                                toast.success(`Reserva: Numero # ${event.id_reserva}`);
+                                abrirPopupReservaExistente(event);
                             }}
                             onSelectSlot={(slotInfo) => {
                                 const start = slotInfo.start ?? slotInfo;
@@ -1862,8 +1956,12 @@ function CalendarioContent() {
                             onTouchStart={iniciarDragPopup}
                         >
                             <div>
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-violet-700">Nuevo agendamiento</p>
-                                <p className="mt-1 text-xs font-semibold text-slate-800 md:text-sm">Confirma el rango seleccionado</p>
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-violet-700">
+                                    {popupMode === "edit" ? "Editar agendamiento" : "Nuevo agendamiento"}
+                                </p>
+                                <p className="mt-1 text-xs font-semibold text-slate-800 md:text-sm">
+                                    {popupMode === "edit" ? "Actualiza los datos de la reserva seleccionada" : "Confirma el rango seleccionado"}
+                                </p>
                             </div>
                             <button
                                 type="button"
@@ -1918,7 +2016,9 @@ function CalendarioContent() {
                             <div className="rounded-2xl border border-violet-100 bg-[linear-gradient(180deg,rgba(250,245,255,0.9),rgba(255,255,255,0.96))] px-3 py-3">
                                 <div className="mb-3">
                                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-700">Paciente</p>
-                                    <p className="mt-1 text-xs text-slate-500">Completa los datos para crear el agendamiento.</p>
+                                    <p className="mt-1 text-xs text-slate-500">
+                                        {popupMode === "edit" ? "Modifica los datos del paciente o el horario de la reserva." : "Completa los datos para crear el agendamiento."}
+                                    </p>
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -1971,22 +2071,24 @@ function CalendarioContent() {
                                 </div>
                             </div>
 
-                            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
-                                <div className="mb-3">
-                                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">Bloqueo rápido</p>
-                                    <p className="mt-1 text-xs text-slate-500">Arrastra un rango en el calendario y usa este motivo para bloquear ese horario del mismo día.</p>
-                                </div>
+                            {popupMode === "create" && (
+                                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
+                                    <div className="mb-3">
+                                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">Bloqueo rápido</p>
+                                        <p className="mt-1 text-xs text-slate-500">Arrastra un rango en el calendario y usa este motivo para bloquear ese horario del mismo día.</p>
+                                    </div>
 
-                                <div className="space-y-1">
-                                    <label className="text-[11px] text-slate-500">Motivo del bloqueo</label>
-                                    <input
-                                        value={popupForm.motivoBloqueo}
-                                        onChange={(e) => setPopupForm((prev) => ({...prev, motivoBloqueo: e.target.value}))}
-                                        className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-[12px] text-slate-800 outline-none transition-all focus:border-slate-400 focus:ring-4 focus:ring-slate-200/70"
-                                        placeholder="Vacaciones, reunión, pausa, etc."
-                                    />
+                                    <div className="space-y-1">
+                                        <label className="text-[11px] text-slate-500">Motivo del bloqueo</label>
+                                        <input
+                                            value={popupForm.motivoBloqueo}
+                                            onChange={(e) => setPopupForm((prev) => ({...prev, motivoBloqueo: e.target.value}))}
+                                            className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-[12px] text-slate-800 outline-none transition-all focus:border-slate-400 focus:ring-4 focus:ring-slate-200/70"
+                                            placeholder="Vacaciones, reunión, pausa, etc."
+                                        />
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
 
                         <div className="flex flex-col gap-2 border-t border-slate-200 px-3 py-3 md:flex-row md:items-center md:justify-end md:px-4 md:py-4">
@@ -1997,26 +2099,28 @@ function CalendarioContent() {
                             >
                                 Cancelar
                             </button>
+                            {popupMode === "create" && (
+                                <button
+                                    type="button"
+                                    onClick={() => insertarBloqueoHorario(
+                                        id_profesional,
+                                        formatearFechaLocal(selectionDraft.start),
+                                        selectionDraft.start.toTimeString().slice(0, 8),
+                                        formatearFechaLocal(selectionDraft.end),
+                                        selectionDraft.end.toTimeString().slice(0, 8),
+                                        popupForm.motivoBloqueo
+                                    )}
+                                    className="w-full rounded-xl border border-slate-300 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200 md:w-auto"
+                                >
+                                    Bloquear horario
+                                </button>
+                            )}
                             <button
                                 type="button"
-                                onClick={() => insertarBloqueoHorario(
-                                    id_profesional,
-                                    formatearFechaLocal(selectionDraft.start),
-                                    selectionDraft.start.toTimeString().slice(0, 8),
-                                    formatearFechaLocal(selectionDraft.end),
-                                    selectionDraft.end.toTimeString().slice(0, 8),
-                                    popupForm.motivoBloqueo
-                                )}
-                                className="w-full rounded-xl border border-slate-300 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200 md:w-auto"
-                            >
-                                Bloquear horario
-                            </button>
-                            <button
-                                type="button"
-                                onClick={confirmarAgendamientoDesdePopup}
+                                onClick={popupMode === "edit" ? confirmarActualizacionDesdePopup : confirmarAgendamientoDesdePopup}
                                 className="w-full rounded-xl bg-gradient-to-r from-violet-700 to-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(124,58,237,0.24)] transition-all hover:from-violet-600 hover:to-purple-500 md:w-auto"
                             >
-                                Agendar
+                                {popupMode === "edit" ? "Actualizar reserva" : "Agendar"}
                             </button>
                         </div>
                     </div>

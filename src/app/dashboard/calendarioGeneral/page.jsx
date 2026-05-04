@@ -505,7 +505,7 @@ export default function Calendario() {
                     await refrescarCalendario();
                     return toast.success("Se ha ingresado correctamente el agendamiento")
 
-                } else if (respuestaBackend.message === "conflicto" || respuestaBackend.message.includes("conflicto")) {
+                } else if (respuestaBackend.message === "conflicto" || String(respuestaBackend.message || "").includes("conflicto")) {
                     return toast.error("No puede agendar una hora que ya esta ocupada")
 
                 } else if (respuestaBackend.message === false) {
@@ -802,22 +802,25 @@ export default function Calendario() {
                 })
             });
 
+            const respuestaBackend = await res.json();
+            if (!res.ok && respuestaBackend.message === "conflicto") {
+                toast.error("No puede mover la reserva a un horario ocupado.");
+                return false;
+            }
             if (!res.ok) {
                 toast.error("El servidor no responde");
                 return false;
-            } else {
+            }
 
-                const respuestaBackend = await res.json();
-                if (respuestaBackend.message === true) {
-                    setNombrePaciente("");
-                    setApellidoPaciente("");
-                    setTelefono("");
-                    setRut("");
-                    setEmail("");
-                    await refrescarCalendario();
-                    toast.success("Se ha actualizado la reserva correctamente");
-                    return true;
-                }
+            if (respuestaBackend.message === true) {
+                setNombrePaciente("");
+                setApellidoPaciente("");
+                setTelefono("");
+                setRut("");
+                setEmail("");
+                await refrescarCalendario();
+                toast.success("Se ha actualizado la reserva correctamente");
+                return true;
             }
 
 

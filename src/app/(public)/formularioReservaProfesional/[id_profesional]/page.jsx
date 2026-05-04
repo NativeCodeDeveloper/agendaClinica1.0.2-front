@@ -150,11 +150,13 @@ export default function FormularioReservaProfesional() {
                 mode: "cors",
             });
 
+            const data = await res.json();
+            if (!res.ok && data?.message === "conflicto") {
+                return toast.error("Ese horario ya fue tomado. Elige otro.");
+            }
             if (!res.ok) {
                 return toast.error("No se puede procesar el pago por favor evalue otro medio de pago contactandonos por WhatsApp")
             }
-
-            const data = await res.json();
             console.log("Respuesta create-order:", data);
 
             if (data) {
@@ -240,9 +242,11 @@ export default function FormularioReservaProfesional() {
                     id_profesional})
             });
 
-            if (!res.ok) return toast.error('Hubo un problema, intente agendar por otro medio');
-
             const respuestaBackend = await res.json();
+            if (!res.ok && respuestaBackend.message === "conflicto") {
+                return toast.error("Ese horario ya fue tomado. Elige otro.");
+            }
+            if (!res.ok) return toast.error('Hubo un problema, intente agendar por otro medio');
 
             if(respuestaBackend.message === true){
                 comprobanteAgendamiento();
