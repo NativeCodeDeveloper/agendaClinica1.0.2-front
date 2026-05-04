@@ -7,6 +7,14 @@ import RevealOnScroll from "@/Componentes/RevealOnScroll";
 
 export default function Seccion1() {
   const API = process.env.NEXT_PUBLIC_API_URL;
+  const fallbackSobreNosotrosTitulo =
+    process.env.NEXT_PUBLIC_ABOUT_TITLE || "Psicologia infantil integral";
+  const fallbackPrimerParrafo =
+    process.env.NEXT_PUBLIC_ABOUT_PARAGRAPH_1 ||
+    "Brindamos acompanamiento psicologico infantil con una mirada cercana, respetuosa y especializada en el desarrollo emocional, conductual y social de ninos y ninas.";
+  const fallbackSegundoParrafo =
+    process.env.NEXT_PUBLIC_ABOUT_PARAGRAPH_2 ||
+    "Trabajamos junto a las familias para fortalecer habilidades, favorecer el bienestar y entregar orientacion profesional en cada etapa del crecimiento.";
   const [sobreNosotros, setSobreNosotros] = useState("");
   const [primerParrafo, setPrimerParrafo] = useState("");
   const [segundoParrafo, setSegundoParrafo] = useState("");
@@ -44,6 +52,10 @@ export default function Seccion1() {
     cargarContenido();
   }, []);
 
+  const tituloSobreNosotros = fallbackSobreNosotrosTitulo || sobreNosotros || "Sobre Nosotros";
+  const descripcionPrincipal = fallbackPrimerParrafo || primerParrafo;
+  const descripcionSecundaria = fallbackSegundoParrafo || segundoParrafo;
+
   return (
     <section
       id="sobre-nosotros"
@@ -62,26 +74,18 @@ export default function Seccion1() {
                 </span>
               </div>
               <h2 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl leading-tight mb-7">
-                {sobreNosotros || "Sobre Nosotros"}
+                {tituloSobreNosotros}
               </h2>
-              {primerParrafo ? (
-                <p className="text-lg text-slate-600 leading-relaxed">
-                  {primerParrafo}
-                </p>
-              ) : (
-                <p className="text-lg text-slate-400 leading-relaxed italic">
-                  El equipo de este centro está listo para atenderte. Ingresa tu descripción desde el panel de administración para que tus pacientes te conozcan mejor.
-                </p>
-              )}
+              <p className="text-lg text-slate-600 leading-relaxed">
+                {descripcionPrincipal}
+              </p>
             </div>
 
             {/* Right */}
             <div className="flex flex-col gap-8 lg:pt-16">
-              {segundoParrafo && (
-                <p className="text-lg text-slate-600 leading-relaxed">
-                  {segundoParrafo}
-                </p>
-              )}
+              <p className="text-lg text-slate-600 leading-relaxed">
+                {descripcionSecundaria}
+              </p>
               <Link
                 href="/agendaProfesionales"
                 className="group inline-flex items-center gap-2 font-semibold text-slate-900 hover:text-indigo-600 transition-colors w-fit"

@@ -32,6 +32,8 @@ export default function Portada() {
   const [sobreNosotros, setSobreNosotros] = useState("");
   const touchStartX = useRef(null);
   const API = process.env.NEXT_PUBLIC_API_URL;
+  const fallbackSobreNosotrosTitulo =
+    process.env.NEXT_PUBLIC_ABOUT_TITLE || "Psicologia infantil integral";
 
   // ── Lógica original intacta ───────────────────────────
   async function cargarPortada() {
@@ -180,7 +182,7 @@ export default function Portada() {
                 {/* Descripción del slide o sobreNosotros */}
                 {(currentSlide.descripcion || sobreNosotros) && (
                   <p className="text-base text-slate-600 leading-relaxed mb-7">
-                    {currentSlide.descripcion || sobreNosotros}
+                    {currentSlide.descripcion || sobreNosotros || fallbackSobreNosotrosTitulo}
                   </p>
                 )}
 
@@ -269,7 +271,7 @@ export default function Portada() {
                 </h1>
                 {(currentSlide.descripcion || sobreNosotros) && (
                   <p className="text-slate-600 text-sm leading-relaxed mb-6">
-                    {currentSlide.descripcion || sobreNosotros}
+                    {currentSlide.descripcion || sobreNosotros || fallbackSobreNosotrosTitulo}
                   </p>
                 )}
                 <div className="flex justify-center flex-wrap gap-3 mb-6">
