@@ -32,6 +32,7 @@ const STORAGE_KEYS = {
     profesional: "dashboard_reservas_profesional",
     fechaInicio: "dashboard_reservas_fecha_inicio",
     fechaFinalizacion: "dashboard_reservas_fecha_finalizacion",
+    filtroFechasActivo: "dashboard_reservas_filtro_fechas_activo",
 };
 
 export default function AgendaCitas() {
@@ -114,6 +115,14 @@ export default function AgendaCitas() {
     function formatearHoraDashboard(hora) {
         if (!hora) return "";
         return String(hora).slice(0, 5);
+    }
+
+    function obtenerNombreProfesionalReserva(reserva) {
+        if (reserva?.nombreProfesional) return reserva.nombreProfesional;
+        const profesional = listaProfesionales.find(
+            (item) => String(item.id_profesional) === String(reserva?.id_profesional)
+        );
+        return profesional?.nombreProfesional ?? "Sin profesional";
     }
 
     function normalizarRut(rutValor) {
@@ -335,7 +344,8 @@ export default function AgendaCitas() {
         }
     }
 
-    async function buscarEntreFechas(fechaInicio, fechaFinalizacion) {
+    async function buscarEntreFechas(fechaInicio, fechaFinalizacion, opciones = {}) {
+        const {silencioso = false} = opciones;
         try {
             if (!fechaInicio || !fechaFinalizacion) {
                 return toast.error("Debe seleccionar un rango de fechas para filtrar")
@@ -362,13 +372,22 @@ export default function AgendaCitas() {
                 return toast.error("Error al buscar citas. Por favor, intente de nuevo.");
             } else {
                 const respuestaBackend = await res.json();
+                if (typeof window !== "undefined") {
+                    window.localStorage.setItem(STORAGE_KEYS.filtroFechasActivo, "1");
+                }
 
                 if (respuestaBackend && Array.isArray(respuestaBackend) && respuestaBackend.length > 0) {
                     setdataLista(respuestaBackend);
-                    return toast.success(`Se encontraron ${respuestaBackend.length} citas en el período seleccionado.`);
+                    if (!silencioso) {
+                        return toast.success(`Se encontraron ${respuestaBackend.length} citas en el período seleccionado.`);
+                    }
+                    return true;
                 } else {
                     setdataLista([]);
-                    return toast.success("No se encontraron citas en el período seleccionado.");
+                    if (!silencioso) {
+                        return toast.success("No se encontraron citas en el período seleccionado.");
+                    }
+                    return true;
                 }
             }
         } catch (error) {
@@ -448,6 +467,9 @@ export default function AgendaCitas() {
             const respuestaBackend = await res.json();
             if (respuestaBackend) {
                 setdataLista(respuestaBackend);
+                if (typeof window !== "undefined") {
+                    window.localStorage.removeItem(STORAGE_KEYS.filtroFechasActivo);
+                }
             }
         } catch (err) {
             console.log(err);
@@ -456,6 +478,20 @@ export default function AgendaCitas() {
     }
 
     useEffect(() => {
+        if (typeof window === "undefined") {
+            listarTablaCitas();
+            return;
+        }
+
+        const fechaInicioGuardada = window.localStorage.getItem(STORAGE_KEYS.fechaInicio);
+        const fechaFinalGuardada = window.localStorage.getItem(STORAGE_KEYS.fechaFinalizacion);
+        const filtroFechasActivo = window.localStorage.getItem(STORAGE_KEYS.filtroFechasActivo) === "1";
+
+        if (filtroFechasActivo && fechaInicioGuardada && fechaFinalGuardada) {
+            buscarEntreFechas(fechaInicioGuardada, fechaFinalGuardada, {silencioso: true});
+            return;
+        }
+
         listarTablaCitas();
     }, []);
 
@@ -590,6 +626,33 @@ export default function AgendaCitas() {
     }
 
     const accionesRapidasEstado = [
+        {
+            valor: "reservada",
+            etiqueta: "Reservada",
+            icono: (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            )
+        },
+        {
+            valor: "confirmada",
+            etiqueta: "Confirmada",
+            icono: (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+            )
+        },
+        {
+            valor: "anulada",
+            etiqueta: "Anulada",
+            icono: (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 5.636L5.636 18.364M5.636 5.636l12.728 12.728"/>
+                </svg>
+            )
+        },
         {
             valor: "asiste",
             etiqueta: "Asiste",
@@ -837,19 +900,6 @@ export default function AgendaCitas() {
                                     </div>
                                     <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-full bg-slate-900 px-2 text-xs font-bold text-white">{dataLista.length}</span>
                                 </div>
-                                <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
-                                    <span className="font-medium text-slate-600">Estados rápidos:</span>
-                                    {accionesRapidasEstado.map((accion) => (
-                                        <span
-                                            key={accion.valor}
-                                            className="inline-flex items-center gap-1 rounded-full px-2 py-0.5"
-                                            style={obtenerEstiloBotonEstado(accion.valor)}
-                                        >
-                                            {accion.icono}
-                                            {accion.etiqueta}
-                                        </span>
-                                    ))}
-                                </div>
                             </div>
 
                             <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 lg:w-auto">
@@ -957,7 +1007,7 @@ export default function AgendaCitas() {
                                                     </svg>
                                                 </button>
                                             </TableCell>
-                                            <TableCell className="whitespace-nowrap px-4 py-3 text-center text-sm font-medium text-slate-700">{data.nombreProfesional}</TableCell>
+                                            <TableCell className="whitespace-nowrap px-4 py-3 text-center text-sm font-medium text-slate-700">{obtenerNombreProfesionalReserva(data)}</TableCell>
                                             <TableCell className="whitespace-nowrap px-4 py-3 text-center font-mono text-sm text-slate-500">{data.rut}</TableCell>
                                             <TableCell className="px-4 py-3 text-center">
                                                 <span
