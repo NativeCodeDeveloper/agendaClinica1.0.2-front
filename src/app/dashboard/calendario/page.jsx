@@ -31,6 +31,11 @@ function crearHoraLimite(hora, minuto = 0, segundo = 0) {
     return fecha;
 }
 
+function normalizarIdProfesional(valor) {
+    if (valor === null || valor === undefined) return "";
+    return String(valor);
+}
+
 function normalizarCorreoOpcional(valor) {
     const correo = (valor ?? "").trim();
     return correo || null;
@@ -49,7 +54,7 @@ function CalendarioContent() {
     const API = process.env.NEXT_PUBLIC_API_URL;
     const popupRef = useRef(null);
     const popupDragStateRef = useRef({dragging: false, offsetX: 0, offsetY: 0});
-    const selectionGuardRef = useRef({missingProfessional: false, overlap: false});
+    const selectionGuardRef = useRef({missingProfessional: false, overlap: false, past: false, outOfHours: false});
 
     useEffect(() => {
         const style = document.createElement('style');
@@ -254,8 +259,8 @@ function CalendarioContent() {
             const mobile = window.innerWidth < 768;
             setEsMobile(mobile);
             setCurrentView((prev) => {
-                if (mobile && (prev === "month" || prev === "agenda")) {
-                    return "week";
+                if (mobile && prev !== "day") {
+                    return "day";
                 }
                 return prev;
             });
@@ -283,7 +288,7 @@ function CalendarioContent() {
                 if(respustaBackend && respustaBackend.length > 0){
                     setListaProfesionales(respustaBackend);
                     if (!id_profesional) {
-                        setId_profesional(respustaBackend[0].id_profesional);
+                        setId_profesional(normalizarIdProfesional(respustaBackend[0].id_profesional));
                     }
                 }else{
                     return toast.error('No hay profesionales o servicios ingresados en el sistema');
@@ -308,6 +313,18 @@ function CalendarioContent() {
         return `${y}-${m}-${day}`;
     }
 
+    function manejarCambioFechaMobile(valorFecha) {
+        if (!valorFecha) return;
+        const [year, month, day] = valorFecha.split("-").map(Number);
+        if ([year, month, day].some(Number.isNaN)) return;
+
+        const siguienteFecha = new Date(currentDate);
+        siguienteFecha.setFullYear(year, month - 1, day);
+        siguienteFecha.setHours(0, 0, 0, 0);
+        setCurrentDate(siguienteFecha);
+        setCurrentView("day");
+    }
+
     function convertirAFechaCalendario(fechaISO, hora) {
         const soloFecha = fechaISO.slice(0, 10);
         return new Date(`${soloFecha}T${hora}`);
@@ -323,6 +340,11 @@ function CalendarioContent() {
         const maximo = HORA_MAXIMA_AGENDA * 60;
 
         return minutosInicio >= minimo && minutosFin <= maximo && end > start;
+    }
+
+    function esMovimientoHaciaHorarioPasado(start) {
+        if (!(start instanceof Date) || Number.isNaN(start.getTime())) return false;
+        return start < new Date();
     }
 
     function normalizarRut(valor = "") {
@@ -403,7 +425,8 @@ function CalendarioContent() {
     }
 
     function obtenerNombreProfesionalSeleccionado() {
-        return listaProfesionales.find((p) => p.id_profesional === id_profesional)?.nombreProfesional ?? "Sin profesional";
+        const profesionalSeleccionado = normalizarIdProfesional(id_profesional);
+        return listaProfesionales.find((p) => normalizarIdProfesional(p.id_profesional) === profesionalSeleccionado)?.nombreProfesional ?? "Sin profesional";
     }
 
     function limpiarSeleccionTemporal() {
@@ -458,11 +481,11 @@ function CalendarioContent() {
 
         const bounds = slotInfo?.bounds;
         const centerX = typeof window !== "undefined" ? window.innerWidth / 2 - 140 : 320;
-        const centerY = typeof window !== "undefined" ? window.innerHeight / 2 - 120 : 220;
+        const centerY = typeof window !== "undefined" ? Math.max(24, window.innerHeight / 2 - 300) : 140;
 
         setPopupPosition({
             x: bounds ? Math.min(bounds.left + 24, window.innerWidth - 320) : centerX,
-            y: bounds ? Math.max(bounds.top - 10, 90) : centerY,
+            y: bounds ? Math.max(bounds.top - 120, 24) : centerY,
         });
     }
 
@@ -509,7 +532,7 @@ function CalendarioContent() {
         setFloatingDraft(null);
         setPopupPosition({
             x: typeof window !== "undefined" ? Math.max(16, window.innerWidth / 2 - 210) : 320,
-            y: typeof window !== "undefined" ? Math.max(90, window.innerHeight / 2 - 220) : 220,
+            y: typeof window !== "undefined" ? Math.max(24, window.innerHeight / 2 - 300) : 140,
         });
     }
 
@@ -604,8 +627,26 @@ function CalendarioContent() {
             return false;
         }
 
+        if (esMovimientoHaciaHorarioPasado(start)) {
+            if (!selectionGuardRef.current.past) {
+                selectionGuardRef.current.past = true;
+                toast.error("No puedes mover ni agendar citas en horarios pasados.");
+                setTimeout(() => {
+                    selectionGuardRef.current.past = false;
+                }, 1200);
+            }
+            setSelectionPreview(null);
+            return false;
+        }
+
         if (!estaDentroHorarioAgenda(start, end)) {
-            toast.error("Solo puedes agendar entre 09:00 y 20:00 horas.");
+            if (!selectionGuardRef.current.outOfHours) {
+                selectionGuardRef.current.outOfHours = true;
+                toast.error("Solo puedes agendar entre 09:00 y 20:00 horas.");
+                setTimeout(() => {
+                    selectionGuardRef.current.outOfHours = false;
+                }, 1200);
+            }
             setSelectionPreview(null);
             return false;
         }
@@ -983,7 +1024,8 @@ function CalendarioContent() {
         next: "Siguiente", previous: "Anterior", today: "Hoy", month: "Mes", week: "Semana", day: "Día", agenda: "Agenda", noEventsInRange: "No hay eventos",
     }), []);
 
-    const vistasDisponibles = esMobile ? ["week", "day"] : ["month", "week", "day", "agenda"];
+    const vistasDisponibles = esMobile ? ["day"] : ["month", "week", "day", "agenda"];
+    const vistaActiva = esMobile ? "day" : currentView;
 
     // Expande bloqueos multi-día en segmentos por día para que
     // react-big-calendar los muestre en la grilla horaria (no en all-day).
@@ -1319,7 +1361,7 @@ function CalendarioContent() {
             setfechaFinalizacion((reserva.fechaFinalizacion ?? "").slice(0, 10));
             setHoraFinalizacion(reserva.horaFinalizacion ?? "");
             setEstadoReserva(reserva.estadoReserva ?? "");
-            setId_profesional(reserva.id_profesional ?? "");
+            setId_profesional(normalizarIdProfesional(reserva.id_profesional));
         } catch (error) {
             console.log(error);
             return toast.error("El servidor no responde");
@@ -1357,7 +1399,7 @@ function CalendarioContent() {
 
         if (actualizado) {
             setEstadoReserva(estadoNuevo);
-            await seleccionarReservaEspecifica(id_reserva);
+            limpiarSeleccionTemporal();
         }
     }
 
@@ -1456,6 +1498,7 @@ function CalendarioContent() {
                 const respuestaBackend = await res.json();
                 if (respuestaBackend.message === true) {
                     await refrescarCalendario();
+                    limpiarSeleccionTemporal();
                     setid_reserva(0);
                     setNombrePaciente("");
                     setApellidoPaciente("");
@@ -1539,6 +1582,31 @@ function CalendarioContent() {
                         </div>
                     </div>
 
+                    <div className="border-b border-slate-100 bg-[linear-gradient(180deg,rgba(248,250,252,0.96),rgba(255,255,255,0.98))] px-4 py-4">
+                        <div className="mx-auto w-full max-w-[420px]">
+                            <label className="mb-2 block text-center text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                                Selecciona una Agenda
+                            </label>
+                            <div className="relative">
+                                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-violet-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <SelectDinamic
+                                    value={id_profesional}
+                                    onChange={(e) => setId_profesional(e.target.value)}
+                                    options={listaProfesionales.map((profesional) => ({
+                                        value: normalizarIdProfesional(profesional.id_profesional),
+                                        label: profesional.nombreProfesional
+                                    }))}
+                                    placeholder="Selecciona una agenda"
+                                    className="h-12 rounded-2xl border-violet-200 bg-white pl-11 pr-4 text-sm font-semibold text-slate-800 shadow-[0_12px_30px_rgba(79,70,229,0.08)] transition-all duration-200 hover:border-violet-300 focus:border-violet-400 focus:ring-violet-400/20"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
                     {mostrarFormularioAgenda && (
                     <div className="space-y-4 p-4 md:p-5">
                         <section className="rounded-[20px] border border-slate-200 bg-white p-4">
@@ -1594,18 +1662,6 @@ function CalendarioContent() {
                                 <div>
                                     <label className="mb-1 block text-sm font-medium text-slate-700">Teléfono</label>
                                     <ShadcnInput value={telefono ?? ""} onChange={(e) => setTelefono(e.target.value)} className="h-11 rounded-xl border-slate-200 bg-white"/>
-                                </div>
-                                <div>
-                                    <label className="mb-1 block text-sm font-medium text-slate-700">Profesional</label>
-                                    <SelectDinamic
-                                        value={id_profesional}
-                                        onChange={(e) => setId_profesional(Number(e.target.value))}
-                                        options={listaProfesionales.map(profesional => ({
-                                            value: profesional.id_profesional,
-                                            label: profesional.nombreProfesional
-                                        }))}
-                                        placeholder="Selecciona un profesional"
-                                    />
                                 </div>
                             </div>
                         </section>
@@ -1748,11 +1804,22 @@ function CalendarioContent() {
                             <h2 className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Calendario de Reservas</h2>
                             {id_profesional && (
                                 <span className="text-xs text-violet-600 font-medium ml-2">
-                                    — Agenda de: {listaProfesionales.find(p => p.id_profesional === id_profesional)?.nombreProfesional ?? ""}
+                                    — Agenda de: {listaProfesionales.find(p => normalizarIdProfesional(p.id_profesional) === normalizarIdProfesional(id_profesional))?.nombreProfesional ?? ""}
                                 </span>
                             )}
                         </div>
                         <div className="flex flex-wrap items-center gap-4">
+                            {esMobile && (
+                                <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm">
+                                    <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Día</span>
+                                    <input
+                                        type="date"
+                                        value={formatearFechaLocal(currentDate)}
+                                        onChange={(e) => manejarCambioFechaMobile(e.target.value)}
+                                        className="rounded-md border border-slate-200 px-2 py-1 text-sm text-slate-700 outline-none focus:border-violet-300"
+                                    />
+                                </label>
+                            )}
                             {leyendaEstados.map((estado) => {
                                 const paleta = obtenerPaletaEstadoReserva(estado.valor);
                                 return (
@@ -1773,7 +1840,7 @@ function CalendarioContent() {
                                 <span className="inline-block w-3 h-3 rounded bg-violet-200 border border-violet-400"></span>
                                 <span className="text-xs text-slate-500">Selección</span>
                             </div>
-                            <span className="text-xs text-slate-400">Vista: <span className="font-medium text-slate-600 capitalize">{currentView}</span></span>
+                            <span className="text-xs text-slate-400">Vista: <span className="font-medium text-slate-600 capitalize">{vistaActiva}</span></span>
                         </div>
                     </div>
                     <div className="relative p-4 md:p-6 h-[700px]">
@@ -1806,9 +1873,9 @@ function CalendarioContent() {
                             culture="es"
                             date={currentDate}
                             onNavigate={(nextDate) => setCurrentDate(nextDate)}
-                            view={currentView}
-                            onView={(nextView) => setCurrentView(nextView)}
-                            defaultView="week"
+                            view={vistaActiva}
+                            onView={(nextView) => setCurrentView(esMobile ? "day" : nextView)}
+                            defaultView={esMobile ? "day" : "week"}
                             views={vistasDisponibles}
                             style={{height: "100%"}}
                             selectable
@@ -1873,7 +1940,10 @@ function CalendarioContent() {
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
-                            <h2 className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Bloqueos del profesional</h2>
+                            <div>
+                                <h2 className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Bloqueos del profesional</h2>
+                                <p className="mt-0.5 text-xs text-slate-500">{obtenerNombreProfesionalSeleccionado()}</p>
+                            </div>
                             {dataBloqueos.length > 0 && (
                                 <span className="ml-2 inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">
                                     {dataBloqueos.length}
@@ -2071,11 +2141,32 @@ function CalendarioContent() {
                                 </div>
                             </div>
 
+                            {popupMode === "edit" && (
+                                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
+                                    <div className="mb-3">
+                                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">Estado rápido</p>
+                                        <p className="mt-1 text-xs text-slate-500">Actualiza el estado de la reserva sin salir del popup.</p>
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                                        {accionesRapidasEstado.map((accion) => (
+                                            <button
+                                                key={accion.valor}
+                                                type="button"
+                                                onClick={() => cambiarEstadoRapido(accion.valor)}
+                                                className="inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all duration-150 hover:brightness-[0.97]"
+                                                style={obtenerEstiloBotonEstado(accion.valor)}
+                                            >
+                                                {accion.etiqueta}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             {popupMode === "create" && (
                                 <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
                                     <div className="mb-3">
                                         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">Bloqueo rápido</p>
-                                        <p className="mt-1 text-xs text-slate-500">Arrastra un rango en el calendario y usa este motivo para bloquear ese horario del mismo día.</p>
                                     </div>
 
                                     <div className="space-y-1">
@@ -2113,6 +2204,15 @@ function CalendarioContent() {
                                     className="w-full rounded-xl border border-slate-300 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200 md:w-auto"
                                 >
                                     Bloquear horario
+                                </button>
+                            )}
+                            {popupMode === "edit" && (
+                                <button
+                                    type="button"
+                                    onClick={() => eliminadoReserva(selectionDraft.id_reserva)}
+                                    className="w-full rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-100 md:w-auto"
+                                >
+                                    Eliminar reserva
                                 </button>
                             )}
                             <button

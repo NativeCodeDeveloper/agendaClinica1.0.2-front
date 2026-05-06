@@ -208,8 +208,8 @@ export default function Calendario() {
             const mobile = window.innerWidth < 768;
             setEsMobile(mobile);
             setCurrentView((prev) => {
-                if (mobile && (prev === "month" || prev === "agenda")) {
-                    return "week";
+                if (mobile && prev !== "day") {
+                    return "day";
                 }
                 if (!mobile && prev === "week") {
                     return prev;
@@ -258,6 +258,18 @@ export default function Calendario() {
         const m = String(d.getMonth() + 1).padStart(2, "0")
         const day = String(d.getDate()).padStart(2, "0")
         return `${y}-${m}-${day}`
+    }
+
+    function manejarCambioFechaMobile(valorFecha) {
+        if (!valorFecha) return;
+        const [year, month, day] = valorFecha.split("-").map(Number);
+        if ([year, month, day].some(Number.isNaN)) return;
+
+        const siguienteFecha = new Date(currentDate);
+        siguienteFecha.setFullYear(year, month - 1, day);
+        siguienteFecha.setHours(0, 0, 0, 0);
+        setCurrentDate(siguienteFecha);
+        setCurrentView("day");
     }
 
     const manejarFechaHoraInicio = (dateTime) => {
@@ -541,7 +553,8 @@ export default function Calendario() {
         []
     );
 
-    const vistasDisponibles = esMobile ? ["week", "day"] : ["month", "week", "day", "agenda"];
+    const vistasDisponibles = esMobile ? ["day"] : ["month", "week", "day", "agenda"];
+    const vistaActiva = esMobile ? "day" : currentView;
 
 
     useEffect(() => {
@@ -1132,6 +1145,17 @@ export default function Calendario() {
                                     placeholder="Selecciona un profesional"
                                 />
                             </div>
+                            {esMobile && (
+                                <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm">
+                                    <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Día</span>
+                                    <input
+                                        type="date"
+                                        value={formatearFechaLocal(currentDate)}
+                                        onChange={(e) => manejarCambioFechaMobile(e.target.value)}
+                                        className="rounded-md border border-slate-200 px-2 py-1 text-sm text-slate-700 outline-none focus:border-violet-300"
+                                    />
+                                </label>
+                            )}
                             {leyendaEstados.map((estado) => {
                                 const paleta = obtenerPaletaEstadoReserva(estado.valor);
                                 return (
@@ -1148,7 +1172,7 @@ export default function Calendario() {
                                 <span className="inline-block h-3 w-3 rounded border border-slate-500/60 bg-slate-500/50"></span>
                                 <span className="text-xs text-slate-500">Bloqueado</span>
                             </div>
-                            <span className="text-xs text-slate-400">Vista: <span className="font-medium text-slate-600 capitalize">{currentView}</span></span>
+                            <span className="text-xs text-slate-400">Vista: <span className="font-medium text-slate-600 capitalize">{vistaActiva}</span></span>
                         </div>
                     </div>
                     <div className="relative p-4 md:p-6 h-[700px]">
@@ -1169,9 +1193,9 @@ export default function Calendario() {
                             culture="es"
                             date={currentDate}
                             onNavigate={(nextDate) => setCurrentDate(nextDate)}
-                            view={currentView}
-                            onView={(nextView) => setCurrentView(nextView)}
-                            defaultView="week"
+                            view={vistaActiva}
+                            onView={(nextView) => setCurrentView(esMobile ? "day" : nextView)}
+                            defaultView={esMobile ? "day" : "week"}
                             views={vistasDisponibles}
                             style={{height: "100%"}}
                             selectable

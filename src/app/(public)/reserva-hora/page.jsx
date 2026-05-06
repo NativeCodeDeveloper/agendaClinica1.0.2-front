@@ -9,6 +9,35 @@ function ReservaHoraContent() {
     const horaInicio = searchParams.get('hora') || '';
     const emailPaciente = searchParams.get('email') || '';
 
+    function formatearFechaHora(fecha, hora) {
+        if (!fecha) return hora || "";
+
+        const [year, month, day] = String(fecha).slice(0, 10).split("-");
+        const meses = [
+            "enero",
+            "febrero",
+            "marzo",
+            "abril",
+            "mayo",
+            "junio",
+            "julio",
+            "agosto",
+            "septiembre",
+            "octubre",
+            "noviembre",
+            "diciembre"
+        ];
+
+        const fechaTexto = year && month && day
+            ? `${Number(day)} de ${meses[Number(month) - 1] || month} de ${year}`
+            : fecha;
+
+        const horaTexto = hora ? String(hora).slice(0, 5) : "";
+        return horaTexto ? `${fechaTexto} a las ${horaTexto}` : fechaTexto;
+    }
+
+    const fechaHoraLegible = formatearFechaHora(fechaInicio, horaInicio);
+
   return (
     <section className="relative min-h-[70vh] w-full px-4 py-10 flex items-center justify-center bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100">
       {/* Fondos decorativos */}
@@ -83,7 +112,7 @@ function ReservaHoraContent() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-slate-900">Fecha y hora</p>
-                    <p className="text-sm text-slate-600">{fechaInicio} - {horaInicio}</p>
+                    <p className="text-sm text-slate-600">{fechaHoraLegible}</p>
                   </div>
                 </div>
 
