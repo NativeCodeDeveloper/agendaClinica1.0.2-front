@@ -124,6 +124,10 @@ const [id_profesional, setId_profesional] = useState("");
                     setHoraFinalizacion("");
                     await verTodosLosBloqueos();
                     return toast.success('Se ha ingresado con exito el bloqueo al sistema. ')
+                }else if (respuestaBackend.message === "reservaExistente") {
+                    return toast.error("No puede bloquear un horario donde ya existen pacientes agendados.");
+                }else if (respuestaBackend.message === "bloqueoExistente") {
+                    return toast.error("Verifique que no haya una hora o bloqueo previo.");
                 }else {
                     return toast.error("Verifique que no haya una hora o bloqueo previo.")
                 }
