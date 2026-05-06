@@ -1,11 +1,8 @@
 'use client'
 
-import Link from "next/link";
 import RevealOnScroll from "@/Componentes/RevealOnScroll";
-import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ArrowUpRight } from "lucide-react";
 
 export default function Seccion2() {
   const API = process.env.NEXT_PUBLIC_API_URL;
@@ -116,17 +113,6 @@ export default function Seccion2() {
                   <p className="text-white/80 text-sm line-clamp-2">{service.description}</p>
                 </div>
 
-                {/* Bottom Left Cutout Illusion Wrapper */}
-                <div className="absolute bottom-0 left-0 h-[5.5rem] w-[5.5rem] rounded-tr-[2rem] bg-slate-50 transition-colors">
-                  <div className="absolute bottom-0 left-0 bg-slate-50 h-full w-full" />
-                  {/* The interactive circular button resting in the cutout */}
-                  <Link
-                    href={`/contacto`}
-                    className="absolute bottom-4 left-4 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-white shadow hover:bg-indigo-700 transition-all hover:scale-105"
-                  >
-                    <ArrowUpRight className="h-5 w-5" />
-                  </Link>
-                </div>
               </article>
             </RevealOnScroll>
           ))}
