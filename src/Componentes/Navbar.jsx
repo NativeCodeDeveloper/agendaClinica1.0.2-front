@@ -6,10 +6,10 @@ import Image from "next/image";
 import { Menu, X } from "lucide-react";
 
 const navItems = [
-  { label: "Inicio", href: "#inicio" },
-  { label: "Servicios", href: "#servicios" },
-  { label: "Sobre Nosotros", href: "#sobre-nosotros" },
-  { label: "Publicaciones", href: "#publicaciones" },
+  { label: "Inicio", href: "/#inicio" },
+  { label: "Servicios", href: "/#servicios" },
+  { label: "Sobre Nosotros", href: "/#sobre-nosotros" },
+  { label: "Publicaciones", href: "/#publicaciones" },
 ];
 
 export default function Navbar() {
@@ -56,12 +56,12 @@ export default function Navbar() {
           <ul className="flex items-center gap-8">
             {navItems.map((item) => (
               <li key={item.label}>
-                <a
+                <Link
                   href={item.href}
                   className="text-[14px] font-semibold tracking-wide text-slate-700 transition-colors duration-300 hover:text-indigo-600"
                 >
                   {item.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -97,14 +97,14 @@ export default function Navbar() {
       >
         <div className="flex flex-col gap-2 p-5">
           {navItems.map((item) => (
-            <a
+            <Link
               key={item.label}
               href={item.href}
               onClick={() => setIsOpen(false)}
               className="rounded-2xl px-5 py-4 text-[15px] font-bold text-slate-700 transition duration-300 hover:bg-slate-50 hover:text-indigo-600"
             >
               {item.label}
-            </a>
+            </Link>
           ))}
           <div className="mt-2 border-t border-slate-100 pt-4">
             <Link

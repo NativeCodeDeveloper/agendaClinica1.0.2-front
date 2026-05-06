@@ -10,7 +10,7 @@ function ReservaHoraContent() {
     const emailPaciente = searchParams.get('email') || '';
 
   return (
-    <section className="relative min-h-[70vh] w-full px-4 py-10 flex items-center justify-center bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100">
+    <section className="relative min-h-screen w-full px-4 pt-28 pb-12 sm:pt-32 sm:pb-16 flex items-center justify-center bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100">
       {/* Fondos decorativos */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-32 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-gradient-to-br from-slate-200/60 via-gray-200/40 to-white blur-3xl" />

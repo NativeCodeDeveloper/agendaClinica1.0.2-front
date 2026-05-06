@@ -22,31 +22,31 @@ const lora = Lora({
   style: ["normal", "italic"],
 });
 
-export const metadataBase = new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://www.cruzrojasanmiguel.cl");
+export const metadataBase = new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://agendaclinica.cl");
 
 export const metadata = {
   title: {
-    default: "Podología Cruz Roja San Miguel | Atención Clínica Especializada",
-    template: "%s | Cruz Roja San Miguel",
+    default: "Agenda Clínica | Sistema de Agendamiento Médico Online",
+    template: "%s | Agenda Clínica",
   },
   description:
-    "Atención podológica clínica certificada en San Miguel. Especialistas Paula Arce y Miriam Ponce. Agenda tu hora online, tratamiento de uñas encarnadas, pie diabético y más.",
+    "Agenda tu hora médica de forma rápida y sencilla. Plataforma de agendamiento clínico online para profesionales de la salud. Reserva tu cita en segundos.",
   keywords: [
-    "podología San Miguel",
-    "podóloga San Miguel",
-    "Cruz Roja San Miguel",
-    "podología clínica",
-    "atención podológica",
-    "uñas encarnadas",
-    "pie diabético",
-    "callosidades",
-    "Paula Arce podóloga",
-    "Miriam Ponce podóloga",
-    "agenda podología",
-    "salud del pie San Miguel",
+    "agenda clínica",
+    "agendar hora médica",
+    "reserva de hora online",
+    "citas médicas online",
+    "agendamiento clínico",
+    "agenda profesional salud",
+    "reservar cita médica",
+    "sistema de agendamiento",
+    "atención clínica",
+    "agenda online médica",
+    "hora médica online",
+    "plataforma salud",
   ],
-  authors: [{ name: "Cruz Roja San Miguel", url: metadataBase.href }],
-  publisher: "Cruz Roja San Miguel",
+  authors: [{ name: "Agenda Clínica", url: metadataBase.href }],
+  publisher: "Agenda Clínica",
   robots: {
     index: true,
     follow: true,
@@ -58,32 +58,32 @@ export const metadata = {
     canonical: metadataBase.href,
   },
   icons: {
-    icon: "/logosf.png",
-    shortcut: "/logosf.png",
-    apple: "/logosf.png",
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
   },
   openGraph: {
-    title: "Podología Cruz Roja San Miguel | Atención Clínica Especializada",
+    title: "Agenda Clínica | Sistema de Agendamiento Médico Online",
     description:
-      "Profesionales certificadas por Superintendencia de Salud y MINSAL. Agenda tu hora con Paula Arce o Miriam Ponce en Cruz Roja San Miguel.",
+      "Agenda tu hora médica de forma rápida y sencilla. Plataforma de agendamiento clínico online para profesionales de la salud.",
     url: metadataBase.href,
-    siteName: "Cruz Roja San Miguel",
+    siteName: "Agenda Clínica",
     locale: "es_CL",
     type: "website",
     images: [
       {
-        url: "/logosf1.png",
+        url: "/logo.png",
         width: 1200,
         height: 630,
-        alt: "Cruz Roja San Miguel - Podología Clínica",
+        alt: "Agenda Clínica - Sistema de Agendamiento Médico Online",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Podología Cruz Roja San Miguel",
-    description: "Atención podológica clínica certificada en San Miguel. Agenda tu hora online.",
-    images: ["/logosf1.png"],
+    title: "Agenda Clínica | Agendamiento Médico Online",
+    description: "Reserva tu hora médica en segundos. Plataforma de agendamiento clínico online.",
+    images: ["/logo.png"],
   },
 };
 
