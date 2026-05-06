@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 const CF_BASE = "https://imagedelivery.net/aCBUhLfqUcxA2yhIBn1fNQ";
 
 const fallbackSlides = [
-  { id: "fallback-1", image: "/fondo1.png", alt: "Centro Médico", titulo: "", descripcion: "" },
+  { id: "fallback-1", image: "/logoagendaclinica.png", alt: "Centro Médico", titulo: "", descripcion: "" },
 ];
 
 const socialLinks = [
@@ -78,7 +78,7 @@ export default function Portada() {
       id: `portada-${item.id_publicacionesPortada ?? index}`,
       image: item.imagenPortada
         ? `${CF_BASE}/${item.imagenPortada}/portada`
-        : "/fondo1.png",
+        : "/logoagendaclinica.png",
       alt: item.tituloPortadaCarrusel || "Centro Médico",
       titulo: item.tituloPortadaCarrusel || "",
       descripcion: item.descripcionPublicacionesPortada || "",
@@ -141,7 +141,7 @@ export default function Portada() {
                 className="w-full h-full"
               >
                 <img
-                  src={imageErrors[currentSlide.id] ? "/fondo1.png" : currentSlide.image}
+                  src={imageErrors[currentSlide.id] ? "/logoagendaclinica.png" : currentSlide.image}
                   alt={currentSlide.alt}
                   className="w-full h-full object-cover"
                   draggable={false}
@@ -237,7 +237,7 @@ export default function Portada() {
                 className="w-full h-full"
               >
                 <img
-                  src={imageErrors[currentSlide.id] ? "/fondo1.png" : currentSlide.image}
+                  src={imageErrors[currentSlide.id] ? "/logoagendaclinica.png" : currentSlide.image}
                   alt={currentSlide.alt}
                   className="w-full h-full object-cover"
                   draggable={false}

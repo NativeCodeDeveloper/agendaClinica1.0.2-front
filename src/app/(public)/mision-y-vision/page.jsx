@@ -32,7 +32,7 @@ export default function MisionVisionPage() {
 
           <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-[#f4d7c8]/18 bg-[#2a1915] shadow-[0_24px_70px_-38px_rgba(0,0,0,0.56)]">
             <Image
-              src="/fondo3.png"
+              src="/logoagendaclinica.png"
               alt="Mision y vision Centro Integral ESSENZA"
               fill
               className="object-cover object-center"

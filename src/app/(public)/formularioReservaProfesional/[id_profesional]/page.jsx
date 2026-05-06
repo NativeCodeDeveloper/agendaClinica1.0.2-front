@@ -272,7 +272,7 @@ export default function FormularioReservaProfesional() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100 px-4 py-12 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100 px-4 pt-28 pb-12 sm:pt-32 sm:pb-16 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-2xl">
 
                 {/* Header */}

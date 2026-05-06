@@ -16,19 +16,19 @@ export default function Seccion2() {
       id: "srv-1",
       name: "Atención médica general",
       description: "Evaluación integral de salud, orientación profesional y seguimiento.",
-      image: "/fondo2.png",
+      image: "/logoagendaclinica.png",
     },
     {
       id: "srv-2",
       name: "Tratamientos Metabólicos",
       description: "Planes personalizados para la salud a largo plazo.",
-      image: "/fondo3.png",
+      image: "/logoagendaclinica.png",
     },
     {
       id: "srv-3",
       name: "Nutrición Clínica",
       description: "Orientación alimentaria para mejorar tu calidad de vida.",
-      image: "/fondo1.png",
+      image: "/logoagendaclinica.png",
     },
   ];
 

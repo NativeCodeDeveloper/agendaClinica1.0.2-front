@@ -58,9 +58,9 @@ export const metadata = {
     canonical: metadataBase.href,
   },
   icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
-    apple: "/logo.png",
+    icon: "/logoagendaclinica.png",
+    shortcut: "/logoagendaclinica.png",
+    apple: "/logoagendaclinica.png",
   },
   openGraph: {
     title: "Agenda Clínica | Sistema de Agendamiento Médico Online",
@@ -72,7 +72,7 @@ export const metadata = {
     type: "website",
     images: [
       {
-        url: "/logo.png",
+        url: "/logoagendaclinica.png",
         width: 1200,
         height: 630,
         alt: "Agenda Clínica - Sistema de Agendamiento Médico Online",
@@ -83,7 +83,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Agenda Clínica | Agendamiento Médico Online",
     description: "Reserva tu hora médica en segundos. Plataforma de agendamiento clínico online.",
-    images: ["/logo.png"],
+    images: ["/logoagendaclinica.png"],
   },
 };
 
