@@ -32,13 +32,14 @@ const STORAGE_KEYS = {
     profesional: "dashboard_reservas_profesional",
     fechaInicio: "dashboard_reservas_fecha_inicio",
     fechaFinalizacion: "dashboard_reservas_fecha_finalizacion",
-    filtroFechasActivo: "dashboard_reservas_filtro_fechas_activo",
+    estado: "dashboard_reservas_estado",
 };
 
 export default function AgendaCitas() {
     const API = process.env.NEXT_PUBLIC_API_URL;
     const router = useRouter();
     const [dataLista, setdataLista] = useState([]);
+    const [dataListaBase, setDataListaBase] = useState([]);
     const [nombrePaciente, setnombrePaciente] = useState("");
     const [rut, setrut] = useState("");
     const [fechaInicio, setfechaInicio] = useState(null);
@@ -57,6 +58,7 @@ export default function AgendaCitas() {
         const profesionalGuardado = window.localStorage.getItem(STORAGE_KEYS.profesional);
         const fechaInicioGuardada = window.localStorage.getItem(STORAGE_KEYS.fechaInicio);
         const fechaFinalGuardada = window.localStorage.getItem(STORAGE_KEYS.fechaFinalizacion);
+        const estadoGuardado = window.localStorage.getItem(STORAGE_KEYS.estado);
 
         if (profesionalGuardado) {
             setId_profesional(profesionalGuardado);
@@ -68,6 +70,10 @@ export default function AgendaCitas() {
 
         if (fechaFinalGuardada) {
             setfechaFinalizacion(fechaFinalGuardada);
+        }
+
+        if (estadoGuardado) {
+            setestadoReserva(estadoGuardado);
         }
     }, []);
 
@@ -100,6 +106,16 @@ export default function AgendaCitas() {
             window.localStorage.removeItem(STORAGE_KEYS.fechaFinalizacion);
         }
     }, [fechaFinalizacion]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+
+        if (estadoReserva) {
+            window.localStorage.setItem(STORAGE_KEYS.estado, estadoReserva);
+        } else {
+            window.localStorage.removeItem(STORAGE_KEYS.estado);
+        }
+    }, [estadoReserva]);
 
     function formatearFechaDashboard(fecha) {
         if (!fecha) return "";
@@ -247,38 +263,31 @@ export default function AgendaCitas() {
 
 
 
-    async function buscarPorProfesional(id_profesional) {
-        try {
-            const res = await fetch(`${API}/reservaPacientes/seleccionarPorProfesional`, {
-                method: "POST",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({id_profesional}),
-                mode: "cors"
-            });
+    function coincideConRangoFechas(reserva) {
+        if (!fechaInicio || !fechaFinalizacion) return true;
 
-            const respuestaBackend = await res.json();
+        const fechaReserva = String(reserva?.fechaInicio || "").slice(0, 10);
+        if (!fechaReserva) return false;
 
-            if (respuestaBackend.length > 0) {
-                setdataLista(respuestaBackend);
-                return toast.success("Reservas con el profesional encontradas!")
-            }
-
-
-        } catch (error) {
-            console.log(error);
-            return toast.error("No ha sido posible buscar, contacte a soporte Tecnico de Medify");
-        }
+        return fechaReserva >= fechaInicio && fechaReserva <= fechaFinalizacion;
     }
 
-    useEffect(() => {
-        buscarPorProfesional(id_profesional)
-    },[id_profesional])
+    function aplicarFiltrosCombinados(reservas = []) {
+        return reservas.filter((reserva) => {
+            const coincideProfesional = !id_profesional || String(reserva?.id_profesional) === String(id_profesional);
+            const coincideEstado = !estadoReserva || normalizarEstadoReserva(reserva?.estadoReserva) === normalizarEstadoReserva(estadoReserva);
+            const coincideFecha = coincideConRangoFechas(reserva);
 
+            return coincideProfesional && coincideEstado && coincideFecha;
+        });
+    }
 
-
+    function limpiarFiltrosPersistidos() {
+        setId_profesional("");
+        setestadoReserva("");
+        setfechaInicio(null);
+        setfechaFinalizacion(null);
+    }
 
     async function seleccionarTodosProfesionalesAgendaLista() {
         try {
@@ -358,38 +367,17 @@ export default function AgendaCitas() {
                 return toast.error("La fecha de inicio no puede ser posterior a la fecha de término.");
             }
 
-            const res = await fetch(`${API}/reservaPacientes/buscarEntreFechas`, {
-                method: "POST",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({fechaInicio, fechaFinalizacion}),
-                mode: "cors"
-            });
+            const reservasFiltradas = aplicarFiltrosCombinados(dataListaBase);
+            setdataLista(reservasFiltradas);
 
-            if (!res.ok) {
-                return toast.error("Error al buscar citas. Por favor, intente de nuevo.");
-            } else {
-                const respuestaBackend = await res.json();
-                if (typeof window !== "undefined") {
-                    window.localStorage.setItem(STORAGE_KEYS.filtroFechasActivo, "1");
+            if (!silencioso) {
+                if (reservasFiltradas.length > 0) {
+                    return toast.success(`Se encontraron ${reservasFiltradas.length} citas en el período seleccionado.`);
                 }
-
-                if (respuestaBackend && Array.isArray(respuestaBackend) && respuestaBackend.length > 0) {
-                    setdataLista(respuestaBackend);
-                    if (!silencioso) {
-                        return toast.success(`Se encontraron ${respuestaBackend.length} citas en el período seleccionado.`);
-                    }
-                    return true;
-                } else {
-                    setdataLista([]);
-                    if (!silencioso) {
-                        return toast.success("No se encontraron citas en el período seleccionado.");
-                    }
-                    return true;
-                }
+                return toast.success("No se encontraron citas en el período seleccionado.");
             }
+
+            return true;
         } catch (error) {
             console.log(error);
             return toast.error("Error inesperado al buscar citas. Por favor, contacte a soporte técnico.");
@@ -466,10 +454,8 @@ export default function AgendaCitas() {
 
             const respuestaBackend = await res.json();
             if (respuestaBackend) {
+                setDataListaBase(respuestaBackend);
                 setdataLista(respuestaBackend);
-                if (typeof window !== "undefined") {
-                    window.localStorage.removeItem(STORAGE_KEYS.filtroFechasActivo);
-                }
             }
         } catch (err) {
             console.log(err);
@@ -478,60 +464,17 @@ export default function AgendaCitas() {
     }
 
     useEffect(() => {
-        if (typeof window === "undefined") {
-            listarTablaCitas();
-            return;
-        }
-
-        const fechaInicioGuardada = window.localStorage.getItem(STORAGE_KEYS.fechaInicio);
-        const fechaFinalGuardada = window.localStorage.getItem(STORAGE_KEYS.fechaFinalizacion);
-        const filtroFechasActivo = window.localStorage.getItem(STORAGE_KEYS.filtroFechasActivo) === "1";
-
-        if (filtroFechasActivo && fechaInicioGuardada && fechaFinalGuardada) {
-            buscarEntreFechas(fechaInicioGuardada, fechaFinalGuardada, {silencioso: true});
-            return;
-        }
-
         listarTablaCitas();
     }, []);
 
-    async function filtrarEstados(estadoReserva) {
-        try {
-            if (!estadoReserva) {
-                return toast.error("Debe seleccionar un estado de reserva.");
-            }
-
-            const res = await fetch(`${API}/reservaPacientes/seleccionarSegunEstado`, {
-                method: "POST",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({estadoReserva}),
-                mode: "cors",
-                cache: "no-cache"
-            })
-
-            if (!res.ok) {
-                return toast.error("Debe seleccionar un estado de reserva.");
-            } else {
-                const dataBackend = await res.json();
-                if (dataBackend.length > 0) {
-                    setdataLista(dataBackend);
-                } else {
-                    return toast.error("No se han encontrado similitudes con el estado seleccionado")
-                }
-            }
-        } catch (error) {
-            console.log(error);
-            return toast.error(error.message);
-        }
-    }
-
     useEffect(() => {
-        if (!estadoReserva) return;
-        filtrarEstados(estadoReserva)
-    }, [estadoReserva]);
+        if (!Array.isArray(dataListaBase) || dataListaBase.length === 0) {
+            setdataLista(dataListaBase);
+            return;
+        }
+
+        setdataLista(aplicarFiltrosCombinados(dataListaBase));
+    }, [dataListaBase, id_profesional, fechaInicio, fechaFinalizacion, estadoReserva]);
 
     function normalizarEstadoReserva(estado = "") {
         return String(estado)
@@ -728,10 +671,11 @@ export default function AgendaCitas() {
     const resumenEstados = dataLista.reduce((acc, item) => {
         const estado = normalizarEstadoReserva(item?.estadoReserva);
         if (estado === "confirmada" || estado === "confirmado") acc.confirmadas += 1;
+        if (estado === "anulada" || estado === "anulado") acc.anuladas += 1;
         if (estado === "asiste") acc.asiste += 1;
         if (estado === "finalizado") acc.finalizadas += 1;
         return acc;
-    }, {confirmadas: 0, asiste: 0, finalizadas: 0});
+    }, {confirmadas: 0, anuladas: 0, asiste: 0, finalizadas: 0});
 
     return (
         <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(186,230,253,0.28),_transparent_24%),linear-gradient(180deg,#f8fafc_0%,#ffffff_48%,#f8fafc_100%)]">
@@ -748,7 +692,7 @@ export default function AgendaCitas() {
                             <InfoButton informacion={'En esta sección puede revisar todas las reservaciones registradas en la agenda clínica.\n\n¿Qué puede hacer aquí?\n- Buscar reservas por nombre o RUT del paciente.\n- Filtrar por rango de fechas.\n- Filtrar por profesional o por estado.\n- Cambiar rápidamente el estado de una reservación.\n- Abrir la carpeta clínica del paciente desde el botón "Ver".\n\n¿Cómo usar esta pantalla?\n1. Abra "Filtrar búsqueda" si necesita acotar resultados.\n2. Use uno o más filtros según lo que quiera encontrar.\n3. Revise la tabla de reservaciones y seleccione la acción que necesita.\n4. Use "Ver todo” para limpiar filtros y volver a cargar el listado general.'}/>
                         </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-2.5 px-5 py-3 sm:px-6 md:grid-cols-4">
+                    <div className="grid grid-cols-2 gap-2.5 px-5 py-3 sm:px-6 md:grid-cols-5">
                         <div className="rounded-xl border border-slate-200 bg-white/70 px-3.5 py-2.5">
                             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Total visible</p>
                             <p className="mt-1 text-xl font-semibold text-slate-800">{dataLista.length}</p>
@@ -760,6 +704,10 @@ export default function AgendaCitas() {
                         <div className="rounded-xl border border-cyan-100 bg-cyan-50/35 px-3.5 py-2.5">
                             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-600/80">Asiste</p>
                             <p className="mt-1 text-xl font-semibold text-cyan-900">{resumenEstados.asiste}</p>
+                        </div>
+                        <div className="rounded-xl border border-rose-100 bg-rose-50/35 px-3.5 py-2.5">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-rose-600/80">Anuladas</p>
+                            <p className="mt-1 text-xl font-semibold text-rose-900">{resumenEstados.anuladas}</p>
                         </div>
                         <div className="rounded-xl border border-blue-100 bg-blue-50/35 px-3.5 py-2.5">
                             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-blue-600/80">Finalizadas</p>
@@ -936,7 +884,10 @@ export default function AgendaCitas() {
                                     </SelectContent>
                                 </Select>
                                 <button
-                                    onClick={() => listarTablaCitas()}
+                                    onClick={() => {
+                                        limpiarFiltrosPersistidos();
+                                        listarTablaCitas();
+                                    }}
                                     className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm transition-all duration-150 hover:border-slate-300 hover:bg-slate-50 sm:w-[190px]">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
