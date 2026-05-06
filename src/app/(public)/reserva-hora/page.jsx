@@ -8,6 +8,7 @@ function ReservaHoraContent() {
     const fechaInicio = searchParams.get('fecha') || '';
     const horaInicio = searchParams.get('hora') || '';
     const emailPaciente = searchParams.get('email') || '';
+    const profesional = searchParams.get('profesional') || '';
 
   return (
     <section className="relative min-h-screen w-full px-4 pt-28 pb-12 sm:pt-32 sm:pb-16 flex items-center justify-center bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100">
@@ -47,7 +48,7 @@ function ReservaHoraContent() {
               <p className="mt-2 text-slate-700">
                 Su hora con{" "}
                 <span className="font-semibold text-slate-900">
-                  el equipo profesional de {publicContact.companyName}
+                  {profesional || publicContact.companyName}
                 </span>{" "}
                 ha sido reservada con éxito.
               </p>

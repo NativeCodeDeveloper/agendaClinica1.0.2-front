@@ -199,7 +199,7 @@ export default function FormularioReservaProfesional() {
         setRut("");
         setTelefono("");
         setEmail("");
-        router.push(`/reserva-hora?fecha=${fechaInicio}&hora=${horaInicio}`);
+        router.push(`/reserva-hora?fecha=${fechaInicio}&hora=${horaInicio}&profesional=${encodeURIComponent(profesionalSeleccionado)}`);
     }
 
 
