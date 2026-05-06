@@ -287,9 +287,7 @@ function CalendarioContent() {
 
                 if(respustaBackend && respustaBackend.length > 0){
                     setListaProfesionales(respustaBackend);
-                    if (!id_profesional) {
-                        setId_profesional(normalizarIdProfesional(respustaBackend[0].id_profesional));
-                    }
+                    setId_profesional(normalizarIdProfesional(respustaBackend[0].id_profesional));
                 }else{
                     return toast.error('No hay profesionales o servicios ingresados en el sistema');
                 }
@@ -675,7 +673,7 @@ function CalendarioContent() {
             });
             if (!res.ok) return toast.error('No fue posible cargar las agendas, Contacte a soporte de Medify');
             const data = await res.json();
-            setDataAgenda(data);
+            return Array.isArray(data) ? data : [];
         } catch (err) {
             return toast.error(err.message);
         }
@@ -691,7 +689,7 @@ function CalendarioContent() {
             });
             if (!res.ok) return toast.error('No fue posible cargar las agendas del profesional');
             const data = await res.json();
-            setDataAgenda(Array.isArray(data) ? data : []);
+            return Array.isArray(data) ? data : [];
         } catch (err) {
             return toast.error(err.message);
         }
@@ -707,31 +705,51 @@ function CalendarioContent() {
                 body: JSON.stringify({id_profesional})
             });
 
-            if (!res.ok) return;
+            if (!res.ok) return [];
             const data = await res.json();
-            setDataBloqueos(Array.isArray(data) ? data : []);
+            return Array.isArray(data) ? data : [];
         } catch (err) {
             console.log(err);
+            return [];
         }
     }
 
     async function refrescarCalendario() {
         if (id_profesional) {
-            await cargarDataPorProfesional(id_profesional);
-            await cargarBloqueosPorProfesional(id_profesional)
+            const [agenda, bloqueos] = await Promise.all([
+                cargarDataPorProfesional(id_profesional),
+                cargarBloqueosPorProfesional(id_profesional)
+            ]);
+            setDataAgenda(Array.isArray(agenda) ? agenda : []);
+            setDataBloqueos(Array.isArray(bloqueos) ? bloqueos : []);
         }
 
     }
 
-    useEffect(() => { cargarDataAgenda(); }, []);
-
     useEffect(() => {
-        if (id_profesional) {
-            cargarDataPorProfesional(id_profesional);
-            cargarBloqueosPorProfesional(id_profesional);
-        } else {
-            cargarDataAgenda();
+        if (!id_profesional) return;
+
+        let activo = true;
+        setDataAgenda([]);
+        setDataBloqueos([]);
+
+        async function cargarAgendaProfesional() {
+            const [agenda, bloqueos] = await Promise.all([
+                cargarDataPorProfesional(id_profesional),
+                cargarBloqueosPorProfesional(id_profesional)
+            ]);
+
+            if (!activo) return;
+
+            setDataAgenda(Array.isArray(agenda) ? agenda : []);
+            setDataBloqueos(Array.isArray(bloqueos) ? bloqueos : []);
         }
+
+        cargarAgendaProfesional();
+
+        return () => {
+            activo = false;
+        };
     }, [id_profesional]);
 
     useEffect(() => {
