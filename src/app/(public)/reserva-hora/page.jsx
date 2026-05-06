@@ -8,6 +8,7 @@ function ReservaHoraContent() {
     const fechaInicio = searchParams.get('fecha') || '';
     const horaInicio = searchParams.get('hora') || '';
     const emailPaciente = searchParams.get('email') || '';
+    const profesional = searchParams.get('profesional') || '';
 
     function formatearFechaHora(fecha, hora) {
         if (!fecha) return hora || "";
@@ -39,7 +40,7 @@ function ReservaHoraContent() {
     const fechaHoraLegible = formatearFechaHora(fechaInicio, horaInicio);
 
   return (
-    <section className="relative min-h-[70vh] w-full px-4 py-10 flex items-center justify-center bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100">
+    <section className="relative min-h-screen w-full px-4 pt-28 pb-12 sm:pt-32 sm:pb-16 flex items-center justify-center bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100">
       {/* Fondos decorativos */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-32 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-gradient-to-br from-slate-200/60 via-gray-200/40 to-white blur-3xl" />
@@ -76,7 +77,7 @@ function ReservaHoraContent() {
               <p className="mt-2 text-slate-700">
                 Su hora con{" "}
                 <span className="font-semibold text-slate-900">
-                  el equipo profesional de {publicContact.companyName}
+                  {profesional || publicContact.companyName}
                 </span>{" "}
                 ha sido reservada con éxito.
               </p>

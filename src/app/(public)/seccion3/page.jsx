@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight, CalendarCheck, ArrowRight, BookOpen } from "
 import RevealOnScroll from "@/Componentes/RevealOnScroll";
 
 const CF_BASE = "https://imagedelivery.net/aCBUhLfqUcxA2yhIBn1fNQ";
-const FALLBACK_IMAGE = "/ac3.png";
+const FALLBACK_IMAGE = "/logoagendaclinica.png";
 
 function PublicationCard({ item }) {
   const [imgError, setImgError] = useState(false);
