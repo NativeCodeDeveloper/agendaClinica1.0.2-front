@@ -1582,15 +1582,22 @@ function CalendarioContent() {
                         </div>
                     </div>
 
-                    <div className="border-b border-slate-100 bg-[linear-gradient(180deg,rgba(248,250,252,0.96),rgba(255,255,255,0.98))] px-4 py-4">
-                        <div className="mx-auto w-full max-w-[420px]">
-                            <label className="mb-2 block text-center text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                    <div className="border-b border-slate-100 bg-[radial-gradient(circle_at_top,rgba(129,140,248,0.16),transparent_52%),linear-gradient(180deg,rgba(248,250,252,0.98),rgba(255,255,255,0.98))] px-4 py-4">
+                        <div className="mx-auto w-full max-w-[400px]">
+                            <label className="mb-3 block text-center text-xs font-bold uppercase tracking-[0.28em] text-slate-500">
                                 Selecciona una Agenda
                             </label>
-                            <div className="relative">
-                                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-violet-500">
+                            <div className="relative rounded-[24px] bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(245,243,255,0.96))] p-1.5 shadow-[0_18px_36px_rgba(79,70,229,0.09)] ring-1 ring-violet-100/80">
+                                <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-4 text-violet-600">
+                                    <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-100/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                    </span>
+                                </div>
+                                <div className="pointer-events-none absolute inset-y-0 right-0 z-10 flex items-center pr-4 text-slate-400">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </div>
                                 <SelectDinamic
@@ -1601,7 +1608,7 @@ function CalendarioContent() {
                                         label: profesional.nombreProfesional
                                     }))}
                                     placeholder="Selecciona una agenda"
-                                    className="h-12 rounded-2xl border-violet-200 bg-white pl-11 pr-4 text-sm font-semibold text-slate-800 shadow-[0_12px_30px_rgba(79,70,229,0.08)] transition-all duration-200 hover:border-violet-300 focus:border-violet-400 focus:ring-violet-400/20"
+                                    className="h-14 rounded-[20px] border-violet-200/90 bg-white pl-14 pr-11 text-[15px] font-bold tracking-[0.02em] text-slate-800 shadow-none transition-all duration-200 hover:border-violet-300 focus:border-violet-400 focus:ring-4 focus:ring-violet-200/40"
                                 />
                             </div>
                         </div>
