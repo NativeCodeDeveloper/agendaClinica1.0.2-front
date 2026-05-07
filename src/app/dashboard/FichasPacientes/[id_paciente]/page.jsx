@@ -861,6 +861,14 @@ export default function Paciente() {
                             </svg>
                             Nueva Ficha
                         </button>
+                        <button
+                            onClick={verOdontogramas}
+                            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-600 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(16,185,129,0.24)] transition-all duration-150 hover:from-emerald-700 hover:to-cyan-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75h4.5m-4.5 4.5h4.5M7.5 3.75h9A2.25 2.25 0 0118.75 6v12A2.25 2.25 0 0116.5 20.25h-9A2.25 2.25 0 015.25 18V6A2.25 2.25 0 017.5 3.75z"/>
+                            </svg>
+                            Ver Odontograma
+                        </button>
 
 
 
