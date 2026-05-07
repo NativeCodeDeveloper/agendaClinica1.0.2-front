@@ -681,7 +681,7 @@ export default function AgendaCitas() {
         <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(186,230,253,0.28),_transparent_24%),linear-gradient(180deg,#f8fafc_0%,#ffffff_48%,#f8fafc_100%)]">
             <ToasterClient/>
 
-            <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 md:py-10">
+            <div className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 md:py-10 2xl:max-w-none">
                 <div className="mb-6 overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/92 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur">
                     <div className="border-b border-slate-100 bg-[linear-gradient(135deg,rgba(15,23,42,0.98)_0%,rgba(49,46,129,0.96)_58%,rgba(8,145,178,0.92)_100%)] px-5 py-5 sm:px-6">
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -897,8 +897,8 @@ export default function AgendaCitas() {
                             </div>
                         </div>
 
-                        <div className="overflow-x-auto">
-                            <Table>
+                        <div className="overflow-x-auto pb-2">
+                            <Table className="min-w-[1180px]">
                                 <TableCaption className="py-4 text-xs font-medium text-slate-400">Listado de reservaciones registradas</TableCaption>
                                 <TableHeader>
                                     <TableRow className="border-b border-slate-200 bg-slate-950 hover:bg-slate-950">
