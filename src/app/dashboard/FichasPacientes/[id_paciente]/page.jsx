@@ -110,6 +110,10 @@ function convertirFechaParaBackend(fecha) {
     return date.toISOString().split("T")[0];
 }
 
+function sanitizarRut(valor) {
+    return String(valor || "").replace(/[^a-zA-Z0-9]/g, "");
+}
+
 export default function Paciente() {
 
     const {id_paciente} = useParams();
@@ -306,7 +310,7 @@ export default function Paciente() {
         const nacimientoNormalizado = convertirFechaParaBackend(nacimiento);
         const nombreNormalizado = String(nombre || "").trim();
         const apellidoNormalizado = String(apellido || "").trim();
-        const rutNormalizado = String(rut || "").trim();
+        const rutNormalizado = sanitizarRut(rut).trim();
         const sexoNormalizado = String(sexo || "").trim();
         const telefonoNormalizado = String(telefono || "").trim();
         const correoNormalizado = String(correo || "").trim();
@@ -726,7 +730,7 @@ export default function Paciente() {
                                     <ShadcnInput
                                         value={rut}
                                         placeholder="12.345.678-9"
-                                        onChange={(e) => setRut(e.target.value)}
+                                        onChange={(e) => setRut(sanitizarRut(e.target.value))}
                                         className="w-full"
                                     />
                                 </div>

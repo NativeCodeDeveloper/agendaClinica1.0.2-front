@@ -64,11 +64,16 @@ export default function Paciente(){
         return date.toISOString().split("T")[0];
     }
 
+    function sanitizarRut(valor) {
+        return String(valor || "").replace(/[^a-zA-Z0-9]/g, "");
+    }
+
 
     //FUNCION PARA LA ACTUALIZACION DE DATOS DEL PACIENTE
     async function actualizarDatosPacientes(nombre,apellido,rut,nacimiento,sexo, prevision,telefono,correo,direccion,pais,observacion1,apoderado,apoderado_rut,medicamentosUsados,habitos,comentariosAdicionales,id_paciente ) {
 
         let prevision_id = 0;
+        const rutNormalizado = sanitizarRut(rut).trim();
 
         if (prevision.includes("FONASA")) {
             prevision_id = 1;
@@ -81,7 +86,7 @@ export default function Paciente(){
         }
 
         try {
-            if (!nombre || !apellido || !rut || !nacimiento || !sexo || !prevision_id || !telefono || !correo || !direccion || !pais || !id_paciente) {
+            if (!nombre || !apellido || !rutNormalizado || !nacimiento || !sexo || !prevision_id || !telefono || !correo || !direccion || !pais || !id_paciente) {
                 return toast.error("Debe llenar todos los campos para proceder con la actualziacion")
             }
 
@@ -93,7 +98,7 @@ export default function Paciente(){
                 body: JSON.stringify({
                     nombre,
                     apellido,
-                    rut,
+                    rut: rutNormalizado,
                     nacimiento : convertirFecha(nacimiento),
                     sexo,
                     prevision_id,
@@ -486,10 +491,7 @@ export default function Paciente(){
                             <div className="mt-1">
                                 <ShadcnInput
                                     value={rut}
-                                    onChange={(e) => {
-                                        const value = e.target.value.replace(/[^a-zA-Z0-9]/g, "");
-                                        setRut(value);
-                                    }}
+                                    onChange={(e) => setRut(sanitizarRut(e.target.value))}
                                     placeholder="12345678K (Sin puntos ni guion)"
                                     className="w-full"
                                 />
