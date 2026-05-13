@@ -209,7 +209,6 @@ export default function AgendaCitas() {
 
     async function crearPacienteDesdeReserva(reserva) {
         const rutNormalizado = normalizarRut(reserva?.rut);
-        const rutFormateado = formatearRutBusqueda(rutNormalizado) || reserva?.rut || "NO INDICADO";
         const telefonoNormalizado = String(reserva?.telefono || "").trim() || "NO INDICADO";
         const correoNormalizado = String(reserva?.email || "").trim() || null;
 
@@ -223,7 +222,7 @@ export default function AgendaCitas() {
             body: JSON.stringify({
                 nombre: reserva?.nombrePaciente || "NO INDICADO",
                 apellido: reserva?.apellidoPaciente || "NO INDICADO",
-                rut: rutFormateado,
+                rut: rutNormalizado || "NO INDICADO",
                 nacimiento: "1900-01-01",
                 sexo: "No especifica",
                 prevision_id: 4,
@@ -252,7 +251,7 @@ export default function AgendaCitas() {
             throw new Error("La creacion del paciente no fue aceptada por el servidor");
         }
 
-        const pacienteCreado = await buscarPacientePorRut(rutFormateado);
+        const pacienteCreado = await buscarPacientePorRut(rutNormalizado || reserva?.rut);
 
         if (!pacienteCreado?.id_paciente) {
             throw new Error("No se pudo recuperar el paciente recien creado");
