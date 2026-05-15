@@ -6,7 +6,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-export function InfoButton({informacion}) {
+export function InfoButton({informacion, side = "top", align = "center"}) {
     return (
         <Tooltip>
             <TooltipTrigger asChild>
@@ -20,8 +20,8 @@ export function InfoButton({informacion}) {
                 </Button>
             </TooltipTrigger>
             <TooltipContent
-                side="top"
-                align="center"
+                side={side}
+                align={align}
                 className="max-w-sm rounded-xl bg-white px-5 py-4 text-sm text-slate-700 shadow-xl leading-relaxed"
             >
                 <div className="space-y-2">

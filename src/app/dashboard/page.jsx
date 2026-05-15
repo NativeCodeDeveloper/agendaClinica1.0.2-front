@@ -728,6 +728,76 @@ export default function AgendaCitas() {
         return acc;
     }, {confirmadas: 0, anuladas: 0, asiste: 0, finalizadas: 0});
 
+    function renderMenuAccionesReserva(data, opciones = {}) {
+        const {menuWidthClass = "w-[220px]"} = opciones;
+
+        return (
+            <div className="relative flex w-fit items-center justify-center overflow-visible">
+                <button
+                    type="button"
+                    onClick={() => setMenuEstadoAbiertoId((prev) => prev === data.id_reserva ? null : data.id_reserva)}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-xs font-medium text-slate-700 shadow-sm transition-colors duration-150 hover:border-sky-200 hover:bg-sky-50"
+                >
+                    <span>Estado</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className={`h-3.5 w-3.5 transition-transform duration-200 ${menuEstadoAbiertoId === data.id_reserva ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+
+                {menuEstadoAbiertoId === data.id_reserva && (
+                    <div className={`absolute right-0 top-[calc(100%+8px)] z-30 ${menuWidthClass} rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_18px_40px_rgba(15,23,42,0.12)]`}>
+                        <div className="mb-1 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                            Selecciona estado
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            {accionesRapidasEstado.map((accion) => (
+                                <button
+                                    key={accion.valor}
+                                    type="button"
+                                    disabled={actualizandoReservaId === data.id_reserva}
+                                    onClick={() => actualizarEstadoReservaRapido(data.id_reserva, accion.valor)}
+                                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-medium transition-all duration-150 hover:brightness-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                                    style={obtenerEstiloBotonEstado(accion.valor)}
+                                >
+                                    {accion.icono}
+                                    <span>{accion.etiqueta}</span>
+                                </button>
+                            ))}
+                            <button
+                                type="button"
+                                disabled={eliminandoReservaId === data.id_reserva}
+                                onClick={() => eliminarReservaDesdeListado(data.id_reserva)}
+                                className="mt-1 flex w-full items-center gap-2 rounded-xl border border-rose-700 bg-rose-700 px-3 py-2 text-left text-xs font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.14)] transition-all duration-150 hover:bg-rose-800 hover:border-rose-800 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                                <span>{eliminandoReservaId === data.id_reserva ? "Eliminando reservación" : "Eliminar reservación"}</span>
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    function renderBotonFichaReserva(data) {
+        return (
+            <button
+                type="button"
+                disabled={abriendoFichaReservaId === data.id_reserva}
+                onClick={() => verFichaClinicaPaciente(data)}
+                className="inline-flex items-center gap-1 rounded-xl border border-sky-200 bg-sky-50/80 px-2.5 py-1.5 text-xs font-medium text-sky-700 transition-colors duration-150 hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                Ver
+            </button>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(186,230,253,0.28),_transparent_24%),linear-gradient(180deg,#f8fafc_0%,#ffffff_48%,#f8fafc_100%)]">
             <ToasterClient/>
@@ -740,7 +810,11 @@ export default function AgendaCitas() {
                                 <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-200/90">Agenda</p>
                                 <h1 className="text-2xl font-bold tracking-tight text-white md:text-3xl">Reservaciones</h1>
                             </div>
-                            <InfoButton informacion={'En esta sección puede revisar todas las reservaciones registradas en la agenda clínica.\n\n¿Qué puede hacer aquí?\n- Buscar reservas por nombre o RUT del paciente.\n- Filtrar por rango de fechas.\n- Filtrar por profesional o por estado.\n- Cambiar rápidamente el estado de una reservación.\n- Eliminar una reservación desde el listado.\n- Abrir la carpeta clínica del paciente desde el botón "Ver".\n\n¿Cómo usar esta pantalla?\n1. Abra "Filtrar búsqueda" si necesita acotar resultados.\n2. Use uno o más filtros según lo que quiera encontrar.\n3. Revise la tabla de reservaciones y seleccione la acción que necesita.\n4. Use "Ver todo” para limpiar filtros y volver a cargar el listado general.'}/>
+                            <InfoButton
+                                side="left"
+                                align="start"
+                                informacion={'Este módulo le permite revisar y gestionar las reservaciones registradas en la agenda.\n\nDesde aquí puede buscar pacientes por nombre o RUT, filtrar por fecha, profesional o estado, y ver rápidamente qué horas están confirmadas, anuladas, finalizadas o pendientes.\n\nEn cada reservación puede cambiar el estado, eliminar la cita si fue ingresada por error y abrir la ficha clínica del paciente cuando necesite continuar con su atención.\n\nSi desea volver a ver todo el listado, utilice el botón "Ver todo" para limpiar los filtros y recargar las reservaciones.'}
+                            />
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2.5 px-5 py-3 sm:px-6 md:grid-cols-5">
@@ -948,7 +1022,54 @@ export default function AgendaCitas() {
                             </div>
                         </div>
 
-                        <div className="overflow-x-auto pb-2">
+                        <div className="xl:hidden px-4 pb-4 sm:px-6">
+                            {dataLista.length === 0 ? (
+                                <div className="rounded-[22px] border border-slate-200 bg-white px-4 py-12 text-center">
+                                    <p className="text-sm font-semibold text-slate-700">No hay reservaciones para mostrar</p>
+                                    <p className="mt-1 text-sm text-slate-500">Ajusta los filtros o usa “Ver todo” para recargar el listado completo.</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                                    {dataLista.map((data) => (
+                                        <article key={data.id_reserva} className="overflow-visible rounded-[24px] border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.06)]">
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <span className="inline-flex items-center gap-1.5 rounded-xl border border-sky-200 bg-sky-50/80 px-3 py-1.5 text-sm font-semibold text-sky-700">
+                                                    {formatearFechaDashboard(data.fechaInicio)}
+                                                </span>
+                                                <span className="inline-flex items-center rounded-xl border border-cyan-200 bg-cyan-50/80 px-3 py-1.5 text-sm font-semibold text-cyan-700">
+                                                    {formatearHoraDashboard(data.horaInicio)}
+                                                </span>
+                                                <span
+                                                    className="inline-flex min-w-[112px] items-center justify-center rounded-full px-2.5 py-1 text-xs font-semibold"
+                                                    style={obtenerEstiloBadgeEstado(data.estadoReserva)}
+                                                >
+                                                    {data.estadoReserva}
+                                                </span>
+                                            </div>
+
+                                            <div className="mt-4 space-y-3">
+                                                <div>
+                                                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Paciente</p>
+                                                    <p className="mt-1 text-xl font-semibold text-slate-900">{data.nombrePaciente + " " + data.apellidoPaciente}</p>
+                                                    <p className="mt-1 font-mono text-sm text-slate-500">{formatearRutVisible(data.rut)}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Profesional</p>
+                                                    <p className="mt-1 text-base font-medium text-slate-700">{obtenerNombreProfesionalReserva(data)}</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-4 flex items-center justify-between gap-3">
+                                                {renderMenuAccionesReserva(data, {menuWidthClass: "w-[235px]"})}
+                                                {renderBotonFichaReserva(data)}
+                                            </div>
+                                        </article>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="hidden overflow-x-auto pb-2 xl:block">
                             <Table className="min-w-[920px] table-fixed">
                                 <TableCaption className="py-4 text-xs font-medium text-slate-400">Listado de reservaciones registradas</TableCaption>
                                 <TableHeader>
@@ -1027,65 +1148,12 @@ export default function AgendaCitas() {
                                                 </span>
                                             </TableCell>
                                             <TableCell className="overflow-visible px-2 py-3 align-top">
-                                                <div className="relative mx-auto flex w-fit items-center justify-center overflow-visible">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setMenuEstadoAbiertoId((prev) => prev === data.id_reserva ? null : data.id_reserva)}
-                                                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-xs font-medium text-slate-700 shadow-sm transition-colors duration-150 hover:border-sky-200 hover:bg-sky-50"
-                                                    >
-                                                        <span>Estado</span>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className={`h-3.5 w-3.5 transition-transform duration-200 ${menuEstadoAbiertoId === data.id_reserva ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
-                                                        </svg>
-                                                    </button>
-
-                                                    {menuEstadoAbiertoId === data.id_reserva && (
-                                                        <div className="absolute right-0 top-[calc(100%+8px)] z-30 w-[220px] rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_18px_40px_rgba(15,23,42,0.12)]">
-                                                            <div className="mb-1 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                                                                Selecciona estado
-                                                            </div>
-                                                            <div className="flex flex-col gap-1">
-                                                                {accionesRapidasEstado.map((accion) => (
-                                                                    <button
-                                                                        key={accion.valor}
-                                                                        type="button"
-                                                                        disabled={actualizandoReservaId === data.id_reserva}
-                                                                        onClick={() => actualizarEstadoReservaRapido(data.id_reserva, accion.valor)}
-                                                                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-medium transition-all duration-150 hover:brightness-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-                                                                        style={obtenerEstiloBotonEstado(accion.valor)}
-                                                                    >
-                                                                        {accion.icono}
-                                                                        <span>{accion.etiqueta}</span>
-                                                                    </button>
-                                                                ))}
-                                                                <button
-                                                                    type="button"
-                                                                    disabled={eliminandoReservaId === data.id_reserva}
-                                                                    onClick={() => eliminarReservaDesdeListado(data.id_reserva)}
-                                                                    className="mt-1 flex w-full items-center gap-2 rounded-xl border border-rose-700 bg-rose-700 px-3 py-2 text-left text-xs font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.14)] transition-all duration-150 hover:bg-rose-800 hover:border-rose-800 disabled:cursor-not-allowed disabled:opacity-60"
-                                                                >
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                                                                    </svg>
-                                                                    <span>{eliminandoReservaId === data.id_reserva ? "Eliminando reservación" : "Eliminar reservación"}</span>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    )}
+                                                <div className="mx-auto w-fit">
+                                                    {renderMenuAccionesReserva(data)}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="px-2 py-3 text-center">
-                                                <button
-                                                    type="button"
-                                                    disabled={abriendoFichaReservaId === data.id_reserva}
-                                                    onClick={() => verFichaClinicaPaciente(data)}
-                                                    className="inline-flex items-center gap-1 rounded-xl border border-sky-200 bg-sky-50/80 px-2.5 py-1.5 text-xs font-medium text-sky-700 transition-colors duration-150 hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-60">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                                    </svg>
-                                                    Ver
-                                                </button>
+                                                {renderBotonFichaReserva(data)}
                                             </TableCell>
                                         </TableRow>
                                     ))}

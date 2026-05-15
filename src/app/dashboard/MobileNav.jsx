@@ -42,7 +42,7 @@ export default function MobileNav() {
   const pathname = usePathname();
 
   return (
-    <div className="md:hidden sticky top-0 z-40">
+    <div className="xl:hidden sticky top-0 z-40">
       <div className="border-b border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,250,252,0.94))] backdrop-blur-xl shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
         <div className="flex items-center justify-between gap-3 px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
