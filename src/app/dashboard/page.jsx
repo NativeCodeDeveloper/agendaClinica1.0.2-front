@@ -49,6 +49,7 @@ export default function AgendaCitas() {
     const [id_profesional, setId_profesional] = useState("");
     const [actualizandoReservaId, setActualizandoReservaId] = useState(null);
     const [abriendoFichaReservaId, setAbriendoFichaReservaId] = useState(null);
+    const [eliminandoReservaId, setEliminandoReservaId] = useState(null);
     const [mostrarFiltros, setMostrarFiltros] = useState(false);
     const [menuEstadoAbiertoId, setMenuEstadoAbiertoId] = useState(null);
 
@@ -672,6 +673,52 @@ export default function AgendaCitas() {
         }
     }
 
+    async function eliminarReservaDesdeListado(id_reserva) {
+        try {
+            if (!id_reserva) {
+                return toast.error("No se pudo identificar la reservación a eliminar.");
+            }
+
+            const confirmarEliminacion = window.confirm(
+                "¿Esta seguro de que desea eliminar esta reservacion?"
+            );
+
+            if (!confirmarEliminacion) {
+                return;
+            }
+
+            setEliminandoReservaId(id_reserva);
+
+            const res = await fetch(`${API}/reservaPacientes/eliminarReserva`, {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({id_reserva}),
+                mode: "cors"
+            });
+
+            if (!res.ok) {
+                return toast.error("No hay conexion con el servidor por favor contacte a Soporte");
+            }
+
+            const respuestaBackend = await res.json();
+            if (respuestaBackend.message === true) {
+                setMenuEstadoAbiertoId(null);
+                await listarTablaCitas();
+                return toast.success("La reservacion ha sido eliminada con exito, La hora ha quedado dispible para otra cita");
+            }
+
+            return toast.error("No se ha podido eliminar la reserva. Intente mas tarde.");
+        } catch (error) {
+            console.log(error);
+            return toast.error("No hay conexion con el servidor por favor contacte a Soporte");
+        } finally {
+            setEliminandoReservaId(null);
+        }
+    }
+
     const resumenEstados = dataLista.reduce((acc, item) => {
         const estado = normalizarEstadoReserva(item?.estadoReserva);
         if (estado === "confirmada" || estado === "confirmado") acc.confirmadas += 1;
@@ -693,7 +740,7 @@ export default function AgendaCitas() {
                                 <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-200/90">Agenda</p>
                                 <h1 className="text-2xl font-bold tracking-tight text-white md:text-3xl">Reservaciones</h1>
                             </div>
-                            <InfoButton informacion={'En esta sección puede revisar todas las reservaciones registradas en la agenda clínica.\n\n¿Qué puede hacer aquí?\n- Buscar reservas por nombre o RUT del paciente.\n- Filtrar por rango de fechas.\n- Filtrar por profesional o por estado.\n- Cambiar rápidamente el estado de una reservación.\n- Abrir la carpeta clínica del paciente desde el botón "Ver".\n\n¿Cómo usar esta pantalla?\n1. Abra "Filtrar búsqueda" si necesita acotar resultados.\n2. Use uno o más filtros según lo que quiera encontrar.\n3. Revise la tabla de reservaciones y seleccione la acción que necesita.\n4. Use "Ver todo” para limpiar filtros y volver a cargar el listado general.'}/>
+                            <InfoButton informacion={'En esta sección puede revisar todas las reservaciones registradas en la agenda clínica.\n\n¿Qué puede hacer aquí?\n- Buscar reservas por nombre o RUT del paciente.\n- Filtrar por rango de fechas.\n- Filtrar por profesional o por estado.\n- Cambiar rápidamente el estado de una reservación.\n- Eliminar una reservación desde el listado.\n- Abrir la carpeta clínica del paciente desde el botón "Ver".\n\n¿Cómo usar esta pantalla?\n1. Abra "Filtrar búsqueda" si necesita acotar resultados.\n2. Use uno o más filtros según lo que quiera encontrar.\n3. Revise la tabla de reservaciones y seleccione la acción que necesita.\n4. Use "Ver todo” para limpiar filtros y volver a cargar el listado general.'}/>
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2.5 px-5 py-3 sm:px-6 md:grid-cols-5">
@@ -980,7 +1027,7 @@ export default function AgendaCitas() {
                                                 </span>
                                             </TableCell>
                                             <TableCell className="overflow-visible px-2 py-3 align-top">
-                                                <div className="relative mx-auto flex w-fit items-center justify-center overflow-visible">
+                                                <div className="relative mx-auto flex w-fit flex-col items-center justify-center gap-1.5 overflow-visible">
                                                     <button
                                                         type="button"
                                                         onClick={() => setMenuEstadoAbiertoId((prev) => prev === data.id_reserva ? null : data.id_reserva)}
@@ -990,6 +1037,18 @@ export default function AgendaCitas() {
                                                         <svg xmlns="http://www.w3.org/2000/svg" className={`h-3.5 w-3.5 transition-transform duration-200 ${menuEstadoAbiertoId === data.id_reserva ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                                             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
                                                         </svg>
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        disabled={eliminandoReservaId === data.id_reserva}
+                                                        onClick={() => eliminarReservaDesdeListado(data.id_reserva)}
+                                                        className="inline-flex items-center gap-1 rounded-xl border border-rose-200 bg-rose-50/80 px-2.5 py-1.5 text-xs font-medium text-rose-700 transition-colors duration-150 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                                        </svg>
+                                                        {eliminandoReservaId === data.id_reserva ? "Eliminando" : "Eliminar"}
                                                     </button>
 
                                                     {menuEstadoAbiertoId === data.id_reserva && (
