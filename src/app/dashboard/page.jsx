@@ -1027,7 +1027,7 @@ export default function AgendaCitas() {
                                                 </span>
                                             </TableCell>
                                             <TableCell className="overflow-visible px-2 py-3 align-top">
-                                                <div className="relative mx-auto flex w-fit flex-col items-center justify-center gap-1.5 overflow-visible">
+                                                <div className="relative mx-auto flex w-fit items-center justify-center overflow-visible">
                                                     <button
                                                         type="button"
                                                         onClick={() => setMenuEstadoAbiertoId((prev) => prev === data.id_reserva ? null : data.id_reserva)}
@@ -1037,18 +1037,6 @@ export default function AgendaCitas() {
                                                         <svg xmlns="http://www.w3.org/2000/svg" className={`h-3.5 w-3.5 transition-transform duration-200 ${menuEstadoAbiertoId === data.id_reserva ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                                             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
                                                         </svg>
-                                                    </button>
-
-                                                    <button
-                                                        type="button"
-                                                        disabled={eliminandoReservaId === data.id_reserva}
-                                                        onClick={() => eliminarReservaDesdeListado(data.id_reserva)}
-                                                        className="inline-flex items-center gap-1 rounded-xl border border-rose-200 bg-rose-50/80 px-2.5 py-1.5 text-xs font-medium text-rose-700 transition-colors duration-150 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
-                                                    >
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                                                        </svg>
-                                                        {eliminandoReservaId === data.id_reserva ? "Eliminando" : "Eliminar"}
                                                     </button>
 
                                                     {menuEstadoAbiertoId === data.id_reserva && (
@@ -1070,6 +1058,17 @@ export default function AgendaCitas() {
                                                                         <span>{accion.etiqueta}</span>
                                                                     </button>
                                                                 ))}
+                                                                <button
+                                                                    type="button"
+                                                                    disabled={eliminandoReservaId === data.id_reserva}
+                                                                    onClick={() => eliminarReservaDesdeListado(data.id_reserva)}
+                                                                    className="mt-1 flex w-full items-center gap-2 rounded-xl border border-rose-700 bg-rose-700 px-3 py-2 text-left text-xs font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.14)] transition-all duration-150 hover:bg-rose-800 hover:border-rose-800 disabled:cursor-not-allowed disabled:opacity-60"
+                                                                >
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                                                    </svg>
+                                                                    <span>{eliminandoReservaId === data.id_reserva ? "Eliminando reservación" : "Eliminar reservación"}</span>
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     )}
