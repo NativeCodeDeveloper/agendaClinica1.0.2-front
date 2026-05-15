@@ -237,7 +237,7 @@ function CalendarioContent() {
     const [listaProfesionales, setListaProfesionales] = useState([]);
     const [id_profesional, setId_profesional] = useState("");
     const [backgroundCalendarEvents, setBackgroundCalendarEvents] = useState([]);
-    const [mostrarListaBloqueos, setMostrarListaBloqueos] = useState(true);
+    const [mostrarListaBloqueos, setMostrarListaBloqueos] = useState(false);
     const [mostrarFormularioAgenda, setMostrarFormularioAgenda] = useState(false);
     const [selectionPreview, setSelectionPreview] = useState(null);
     const [selectionDraft, setSelectionDraft] = useState(null);
