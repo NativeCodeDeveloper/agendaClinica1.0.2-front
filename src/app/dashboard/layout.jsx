@@ -61,7 +61,7 @@ export default function DashboardLayout({ children }) {
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Reservaciones
+                                        Panel de Reservas
                                     </Link>
                                 </div>
                             </details>
@@ -85,21 +85,21 @@ export default function DashboardLayout({ children }) {
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Ingresar Agendamiento
+                                        Crear Reserva
                                     </Link>
                                     <Link
                                         href="/dashboard/calendarioGeneral"
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Vista General
+                                        Calendario General
                                     </Link>
                                     <Link
                                         href="/dashboard/bloqueosAgenda"
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Bloqueo Masivo
+                                        Bloquear Horarios
                                     </Link>
                                 </div>
                             </details>
@@ -111,7 +111,7 @@ export default function DashboardLayout({ children }) {
                                         <svg className="h-3.5 w-3.5 text-cyan-400/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
-                                        Registros
+                                        Pacientes y Fichas
                                     </span>
                                     <svg className="h-3 w-3 text-cyan-400/60 transition-transform duration-200 group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor">
                                         <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clipRule="evenodd" />
@@ -124,7 +124,7 @@ export default function DashboardLayout({ children }) {
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Listado de Pacientes
+                                        Ver Pacientes
                                     </Link>
 
 
@@ -133,14 +133,14 @@ export default function DashboardLayout({ children }) {
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Ingreso de Pacientes
+                                        Registrar Paciente
                                     </Link>
                                     <Link
                                         href="/dashboard/FichaClinica"
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Carpeta del paciente
+                                        Ficha Clínica
                                     </Link>
                                 </div>
                             </details>
@@ -166,14 +166,14 @@ export default function DashboardLayout({ children }) {
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Generacion de Presupuesto
+                                        Presupuesto de Tratamiento
                                     </Link>
                                     <Link
                                         href="/dashboard/recetaRapida"
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Receta Rapida
+                                        Receta Médica
                                     </Link>
 
 
@@ -182,7 +182,7 @@ export default function DashboardLayout({ children }) {
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Receta Lentes
+                                        Receta de Lentes
                                     </Link>
 
 
@@ -192,7 +192,7 @@ export default function DashboardLayout({ children }) {
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Solicitar Examenes
+                                        Orden de Exámenes
                                     </Link>
                                 </div>
                             </details>
@@ -218,21 +218,21 @@ export default function DashboardLayout({ children }) {
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Carrusel de Portada
+                                        Banners de Portada
                                     </Link>
                                     <Link
                                         href="/dashboard/publicacionesTituloDescripcion"
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Carrusel Seccion 1
+                                        Tratamientos Destacados
                                     </Link>
                                     <Link
                                         href="/dashboard/publicaciones"
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Carrusel seccion 2
+                                        Publicaciones Web
                                     </Link>
                                 </div>
                             </details>
@@ -245,7 +245,7 @@ export default function DashboardLayout({ children }) {
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                         </svg>
-                                        Configuraciones
+                                        Configuración Clínica
                                     </span>
                                     <svg className="h-3 w-3 text-cyan-400/60 transition-transform duration-200 group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor">
                                         <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clipRule="evenodd" />
@@ -267,7 +267,7 @@ export default function DashboardLayout({ children }) {
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Registro de Agendas
+                                        Profesionales y Agendas
                                     </Link>
 
                                     <Link
@@ -275,7 +275,7 @@ export default function DashboardLayout({ children }) {
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Tratamientos y Servicios
+                                        Catálogo de Servicios
                                     </Link>
 
                                     <Link
@@ -283,21 +283,21 @@ export default function DashboardLayout({ children }) {
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Prestaciones en Agenda
+                                        Servicios Agendables
                                     </Link>
                                     <Link
                                         href="/dashboard/tarifaServicio"
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Cobro por Consulta
+                                        Tarifas de Consulta
                                     </Link>
                                     <Link
                                         href="/dashboard/fichasClinicasPlantillas"
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Fichas Clinicas
+                                        Plantillas de Fichas
                                     </Link>
 
                                     <Link
@@ -305,7 +305,7 @@ export default function DashboardLayout({ children }) {
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Categorias Servicios Tratamientos
+                                        Categorías de Servicios
                                     </Link>
 
 
@@ -314,7 +314,7 @@ export default function DashboardLayout({ children }) {
                                         className="group/link flex items-center gap-2.5 rounded-md px-2 py-[6px] text-[12.5px] font-light text-white/50 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-200"
                                     >
                                         <span className="h-[3px] w-[3px] rounded-full bg-white/15 group-hover/link:bg-violet-400 group-hover/link:shadow-[0_0_6px_rgba(139,92,246,0.6)] transition-all duration-200" />
-                                        Categorias Servicios Tratamientos
+                                        Catálogo de Exámenes
                                     </Link>
 
                                 </div>

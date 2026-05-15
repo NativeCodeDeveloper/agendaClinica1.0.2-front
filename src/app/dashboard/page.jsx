@@ -903,9 +903,8 @@ export default function AgendaCitas() {
                                     <TableRow className="border-b border-slate-200 bg-slate-950 hover:bg-slate-950">
                                         <TableHead className="w-[130px] px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Fecha</TableHead>
                                         <TableHead className="w-[100px] px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Hora</TableHead>
-                                        <TableHead className="w-[230px] px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Paciente</TableHead>
+                                        <TableHead className="w-[260px] px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Paciente</TableHead>
                                         <TableHead className="w-[250px] px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Profesional</TableHead>
-                                        <TableHead className="w-[140px] px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">RUT</TableHead>
                                         <TableHead className="w-[150px] px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Estado</TableHead>
                                         <TableHead className="w-[140px] px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Acciones</TableHead>
                                         <TableHead className="w-[110px] px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Ficha</TableHead>
@@ -914,7 +913,7 @@ export default function AgendaCitas() {
                                 <TableBody>
                                     {dataLista.length === 0 && (
                                         <TableRow className="hover:bg-transparent">
-                                            <TableCell colSpan={8} className="px-4 py-14 text-center">
+                                            <TableCell colSpan={7} className="px-4 py-14 text-center">
                                                 <div className="mx-auto flex max-w-md flex-col items-center">
                                                     <span className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-400">
                                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -949,9 +948,14 @@ export default function AgendaCitas() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setMenuEstadoAbiertoId((prev) => prev === data.id_reserva ? null : data.id_reserva)}
-                                                    className="inline-flex max-w-full items-center gap-2 rounded-xl border border-transparent px-3 py-1.5 transition-colors duration-150 hover:border-sky-200 hover:bg-sky-50/70"
+                                                    className="inline-flex max-w-full items-center gap-2 rounded-xl border border-transparent px-3 py-1.5 text-left transition-colors duration-150 hover:border-sky-200 hover:bg-sky-50/70"
                                                 >
-                                                    <span className="block max-w-[150px] truncate">{data.nombrePaciente + " " + data.apellidoPaciente}</span>
+                                                    <span className="block max-w-[180px]">
+                                                        <span className="block truncate">{data.nombrePaciente + " " + data.apellidoPaciente}</span>
+                                                        <span className="mt-0.5 block truncate font-mono text-[11px] font-normal text-slate-500">
+                                                            {data.rut || "Sin RUT"}
+                                                        </span>
+                                                    </span>
                                                     <svg xmlns="http://www.w3.org/2000/svg" className={`h-3.5 w-3.5 text-sky-600 transition-transform duration-200 ${menuEstadoAbiertoId === data.id_reserva ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
                                                     </svg>
@@ -962,7 +966,6 @@ export default function AgendaCitas() {
                                                     {obtenerNombreProfesionalReserva(data)}
                                                 </span>
                                             </TableCell>
-                                            <TableCell className="whitespace-nowrap px-3 py-3 text-center font-mono text-sm text-slate-500">{data.rut}</TableCell>
                                             <TableCell className="px-3 py-3 text-center">
                                                 <span
                                                     className="inline-flex min-w-[118px] items-center justify-center rounded-full px-2.5 py-1 text-xs font-semibold"
