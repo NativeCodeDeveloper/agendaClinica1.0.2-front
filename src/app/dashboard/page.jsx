@@ -729,7 +729,10 @@ export default function AgendaCitas() {
     }, {confirmadas: 0, anuladas: 0, asiste: 0, finalizadas: 0});
 
     function renderMenuAccionesReserva(data, opciones = {}) {
-        const {menuWidthClass = "w-[220px]"} = opciones;
+        const {
+            menuWidthClass = "w-[220px]",
+            menuPositionClass = "right-0 top-[calc(100%+8px)]"
+        } = opciones;
 
         return (
             <div className="relative flex w-fit items-center justify-center overflow-visible">
@@ -745,7 +748,7 @@ export default function AgendaCitas() {
                 </button>
 
                 {menuEstadoAbiertoId === data.id_reserva && (
-                    <div className={`absolute right-0 top-[calc(100%+8px)] z-30 ${menuWidthClass} rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_18px_40px_rgba(15,23,42,0.12)]`}>
+                    <div className={`absolute ${menuPositionClass} z-30 ${menuWidthClass} rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_18px_40px_rgba(15,23,42,0.12)]`}>
                         <div className="mb-1 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
                             Selecciona estado
                         </div>
@@ -958,7 +961,7 @@ export default function AgendaCitas() {
                         )}
                     </div>
 
-                    <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white/94 shadow-[0_16px_40px_rgba(15,23,42,0.06)]">
+                    <div className="overflow-visible rounded-[24px] border border-slate-200 bg-white/94 shadow-[0_16px_40px_rgba(15,23,42,0.06)]">
                         <div className="flex flex-col gap-4 border-b border-slate-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] px-5 py-4 sm:px-6 2xl:flex-row 2xl:items-start 2xl:justify-between">
                             <div className="space-y-2">
                                 <div className="flex items-start gap-3">
@@ -1029,9 +1032,9 @@ export default function AgendaCitas() {
                                     <p className="mt-1 text-sm text-slate-500">Ajusta los filtros o usa “Ver todo” para recargar el listado completo.</p>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                                <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
                                     {dataLista.map((data) => (
-                                        <article key={data.id_reserva} className="overflow-visible rounded-[24px] border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.06)]">
+                                        <article key={data.id_reserva} className="self-start overflow-visible rounded-[24px] border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.06)]">
                                             <div className="flex flex-wrap items-center gap-2">
                                                 <span className="inline-flex items-center gap-1.5 rounded-xl border border-sky-200 bg-sky-50/80 px-3 py-1.5 text-sm font-semibold text-sky-700">
                                                     {formatearFechaDashboard(data.fechaInicio)}
@@ -1060,7 +1063,10 @@ export default function AgendaCitas() {
                                             </div>
 
                                             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                                                {renderMenuAccionesReserva(data, {menuWidthClass: "w-[235px]"})}
+                                                {renderMenuAccionesReserva(data, {
+                                                    menuWidthClass: "w-[235px]",
+                                                    menuPositionClass: "left-0 top-[calc(100%+8px)]"
+                                                })}
                                                 {renderBotonFichaReserva(data)}
                                             </div>
                                         </article>
