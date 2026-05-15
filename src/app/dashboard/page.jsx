@@ -959,25 +959,25 @@ export default function AgendaCitas() {
                     </div>
 
                     <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white/94 shadow-[0_16px_40px_rgba(15,23,42,0.06)]">
-                        <div className="flex flex-col gap-4 border-b border-slate-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] px-5 py-4 sm:px-6 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="flex flex-col gap-4 border-b border-slate-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] px-5 py-4 sm:px-6 2xl:flex-row 2xl:items-start 2xl:justify-between">
                             <div className="space-y-2">
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-start gap-3">
                                     <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-sky-200 bg-sky-50 text-sky-700">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                         </svg>
                                     </span>
-                                    <div>
+                                    <div className="min-w-0">
                                         <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-800">Reservaciones</h2>
                                         <p className="mt-0.5 text-xs text-slate-500">Vista general con acciones rápidas y acceso a ficha clínica.</p>
+                                        <span className="mt-2 inline-flex h-7 min-w-[28px] items-center justify-center rounded-full bg-slate-900 px-2 text-xs font-bold text-white">{dataLista.length}</span>
                                     </div>
-                                    <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-full bg-slate-900 px-2 text-xs font-bold text-white">{dataLista.length}</span>
                                 </div>
                             </div>
 
-                            <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 lg:w-auto">
+                            <div className="grid w-full grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3 2xl:w-auto">
                                 <Select value={String(id_profesional || "")} onValueChange={(value) => setId_profesional(value)}>
-                                    <SelectTrigger className="h-10 w-full rounded-xl border-slate-200 bg-white text-xs text-slate-700 shadow-sm sm:w-[190px]">
+                                    <SelectTrigger className="h-10 w-full rounded-xl border-slate-200 bg-white text-xs text-slate-700 shadow-sm 2xl:w-[170px]">
                                         <SelectValue placeholder="Filtrar profesional"/>
                                     </SelectTrigger>
                                     <SelectContent className="z-50 border border-slate-200 bg-white shadow-lg">
@@ -994,7 +994,7 @@ export default function AgendaCitas() {
                                     </SelectContent>
                                 </Select>
                                 <Select value={estadoReserva} onValueChange={(value) => setestadoReserva(value)}>
-                                    <SelectTrigger className="h-10 w-full rounded-xl border-slate-200 bg-white text-xs text-slate-700 shadow-sm sm:w-[190px]">
+                                    <SelectTrigger className="h-10 w-full rounded-xl border-slate-200 bg-white text-xs text-slate-700 shadow-sm 2xl:w-[170px]">
                                         <SelectValue placeholder="Filtrar por estado"/>
                                     </SelectTrigger>
                                     <SelectContent className="z-50 border border-slate-200 bg-white shadow-lg">
@@ -1013,7 +1013,7 @@ export default function AgendaCitas() {
                                         limpiarFiltrosPersistidos();
                                         listarTablaCitas();
                                     }}
-                                    className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm transition-all duration-150 hover:border-slate-300 hover:bg-slate-50 sm:w-[190px]">
+                                    className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm transition-all duration-150 hover:border-slate-300 hover:bg-slate-50 md:col-span-2 xl:col-span-1 2xl:w-[170px]">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                                     </svg>
@@ -1022,7 +1022,7 @@ export default function AgendaCitas() {
                             </div>
                         </div>
 
-                        <div className="xl:hidden px-4 pb-4 sm:px-6">
+                        <div className="2xl:hidden px-4 pb-4 sm:px-6">
                             {dataLista.length === 0 ? (
                                 <div className="rounded-[22px] border border-slate-200 bg-white px-4 py-12 text-center">
                                     <p className="text-sm font-semibold text-slate-700">No hay reservaciones para mostrar</p>
@@ -1059,7 +1059,7 @@ export default function AgendaCitas() {
                                                 </div>
                                             </div>
 
-                                            <div className="mt-4 flex items-center justify-between gap-3">
+                                            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                                                 {renderMenuAccionesReserva(data, {menuWidthClass: "w-[235px]"})}
                                                 {renderBotonFichaReserva(data)}
                                             </div>
@@ -1069,18 +1069,18 @@ export default function AgendaCitas() {
                             )}
                         </div>
 
-                        <div className="hidden overflow-x-auto pb-2 xl:block">
-                            <Table className="min-w-[920px] table-fixed">
+                        <div className="hidden overflow-x-auto pb-2 2xl:block">
+                            <Table className="min-w-[840px] table-fixed">
                                 <TableCaption className="py-4 text-xs font-medium text-slate-400">Listado de reservaciones registradas</TableCaption>
                                 <TableHeader>
                                     <TableRow className="border-b border-slate-200 bg-slate-950 hover:bg-slate-950">
-                                        <TableHead className="w-[120px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Fecha</TableHead>
-                                        <TableHead className="w-[88px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Hora</TableHead>
-                                        <TableHead className="w-[230px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Paciente</TableHead>
-                                        <TableHead className="w-[200px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Profesional</TableHead>
-                                        <TableHead className="w-[130px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Estado</TableHead>
-                                        <TableHead className="w-[112px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Acciones</TableHead>
-                                        <TableHead className="w-[90px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Ficha</TableHead>
+                                        <TableHead className="w-[96px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Fecha</TableHead>
+                                        <TableHead className="w-[76px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Hora</TableHead>
+                                        <TableHead className="w-[190px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Paciente</TableHead>
+                                        <TableHead className="w-[160px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Profesional</TableHead>
+                                        <TableHead className="w-[118px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Estado</TableHead>
+                                        <TableHead className="w-[98px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Acciones</TableHead>
+                                        <TableHead className="w-[78px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Ficha</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>

@@ -18,7 +18,7 @@ export default function DashboardLayout({ children }) {
         <div className="h-screen w-full overflow-hidden bg-white">
             <div className="flex h-full w-full">
                 {/* Sidebar */}
-                <aside className="hidden xl:flex h-screen w-[240px] shrink-0 flex-col bg-gray-900 text-white border-r border-white/[0.06] selection:bg-violet-500/30 font-[family-name:var(--font-inter)]">
+                <aside className="hidden 2xl:flex h-screen w-[240px] shrink-0 flex-col bg-gray-900 text-white border-r border-white/[0.06] selection:bg-violet-500/30 font-[family-name:var(--font-inter)]">
 
                    {/* ── Brand ── */}
                     <div className="relative px-4 pb-3 pt-4 shrink-0">
