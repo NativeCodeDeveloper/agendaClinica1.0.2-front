@@ -240,7 +240,9 @@ export default function Publicaciones() {
         if (!res.ok) throw new Error("No fue posible guardar la publicacion.");
 
         const data = await res.json();
-        if (data.message !== "true") throw new Error("El servidor no confirmo el guardado.");
+        if (data?.message !== true && data?.message !== "true") {
+            throw new Error("El servidor no confirmo el guardado.");
+        }
     }
 
     function handlePublicationSelect(event) {
