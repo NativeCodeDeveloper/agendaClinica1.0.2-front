@@ -147,6 +147,11 @@ export default function AgendaCitas() {
             .toUpperCase();
     }
 
+    function formatearRutVisible(rutValor) {
+        const rutNormalizado = normalizarRut(rutValor);
+        return rutNormalizado ? `RUT: ${rutNormalizado}` : "RUT: Sin registro";
+    }
+
     function formatearRutBusqueda(rutValor) {
         const rutNormalizado = normalizarRut(rutValor);
 
@@ -897,17 +902,17 @@ export default function AgendaCitas() {
                         </div>
 
                         <div className="overflow-x-auto pb-2">
-                            <Table className="min-w-[1040px] table-fixed">
+                            <Table className="min-w-[920px] table-fixed">
                                 <TableCaption className="py-4 text-xs font-medium text-slate-400">Listado de reservaciones registradas</TableCaption>
                                 <TableHeader>
                                     <TableRow className="border-b border-slate-200 bg-slate-950 hover:bg-slate-950">
-                                        <TableHead className="w-[130px] px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Fecha</TableHead>
-                                        <TableHead className="w-[100px] px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Hora</TableHead>
-                                        <TableHead className="w-[260px] px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Paciente</TableHead>
-                                        <TableHead className="w-[250px] px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Profesional</TableHead>
-                                        <TableHead className="w-[150px] px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Estado</TableHead>
-                                        <TableHead className="w-[140px] px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Acciones</TableHead>
-                                        <TableHead className="w-[110px] px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Ficha</TableHead>
+                                        <TableHead className="w-[120px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Fecha</TableHead>
+                                        <TableHead className="w-[88px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Hora</TableHead>
+                                        <TableHead className="w-[230px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Paciente</TableHead>
+                                        <TableHead className="w-[200px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Profesional</TableHead>
+                                        <TableHead className="w-[130px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Estado</TableHead>
+                                        <TableHead className="w-[112px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Acciones</TableHead>
+                                        <TableHead className="w-[90px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Ficha</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -931,7 +936,7 @@ export default function AgendaCitas() {
                                             key={data.id_reserva}
                                             className={"transition-colors duration-100 hover:bg-sky-50/40 " + (i % 2 === 0 ? "bg-white" : "bg-slate-50/50")}
                                         >
-                                            <TableCell className="whitespace-nowrap px-3 py-3 text-center">
+                                            <TableCell className="whitespace-nowrap px-2 py-3 text-center">
                                                 <span className="inline-flex items-center gap-1.5 rounded-xl border border-sky-200 bg-sky-50/80 px-3 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]">
                                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                                         <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -939,21 +944,21 @@ export default function AgendaCitas() {
                                                     <span className="text-sm font-semibold text-sky-700">{formatearFechaDashboard(data.fechaInicio)}</span>
                                                 </span>
                                             </TableCell>
-                                            <TableCell className="whitespace-nowrap px-3 py-3 text-center">
-                                                <span className="inline-flex items-center rounded-xl border border-cyan-200 bg-cyan-50/80 px-3 py-1.5 text-sm font-semibold text-cyan-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]">
+                                            <TableCell className="whitespace-nowrap px-2 py-3 text-center">
+                                                <span className="inline-flex items-center rounded-xl border border-cyan-200 bg-cyan-50/80 px-2.5 py-1.5 text-sm font-semibold text-cyan-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]">
                                                     {formatearHoraDashboard(data.horaInicio)}
                                                 </span>
                                             </TableCell>
-                                            <TableCell className="whitespace-nowrap px-3 py-3 text-center text-sm font-medium text-slate-800">
+                                            <TableCell className="whitespace-nowrap px-2 py-3 text-center text-sm font-medium text-slate-800">
                                                 <button
                                                     type="button"
                                                     onClick={() => setMenuEstadoAbiertoId((prev) => prev === data.id_reserva ? null : data.id_reserva)}
-                                                    className="inline-flex max-w-full items-center gap-2 rounded-xl border border-transparent px-3 py-1.5 text-left transition-colors duration-150 hover:border-sky-200 hover:bg-sky-50/70"
+                                                    className="inline-flex max-w-full items-center justify-start gap-1.5 rounded-xl border border-transparent px-2 py-1.5 text-left align-middle transition-colors duration-150 hover:border-sky-200 hover:bg-sky-50/70"
                                                 >
-                                                    <span className="block max-w-[180px]">
+                                                    <span className="block max-w-[165px]">
                                                         <span className="block truncate">{data.nombrePaciente + " " + data.apellidoPaciente}</span>
                                                         <span className="mt-0.5 block truncate font-mono text-[11px] font-normal text-slate-500">
-                                                            {data.rut || "Sin RUT"}
+                                                            {formatearRutVisible(data.rut)}
                                                         </span>
                                                     </span>
                                                     <svg xmlns="http://www.w3.org/2000/svg" className={`h-3.5 w-3.5 text-sky-600 transition-transform duration-200 ${menuEstadoAbiertoId === data.id_reserva ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -961,25 +966,25 @@ export default function AgendaCitas() {
                                                     </svg>
                                                 </button>
                                             </TableCell>
-                                            <TableCell className="whitespace-nowrap px-3 py-3 text-center text-sm font-medium text-slate-700">
-                                                <span className="mx-auto block max-w-[210px] truncate">
+                                            <TableCell className="whitespace-nowrap px-2 py-3 text-center text-sm font-medium text-slate-700">
+                                                <span className="mx-auto block max-w-[180px] truncate">
                                                     {obtenerNombreProfesionalReserva(data)}
                                                 </span>
                                             </TableCell>
-                                            <TableCell className="px-3 py-3 text-center">
+                                            <TableCell className="px-2 py-3 text-center">
                                                 <span
-                                                    className="inline-flex min-w-[118px] items-center justify-center rounded-full px-2.5 py-1 text-xs font-semibold"
+                                                    className="inline-flex min-w-[104px] items-center justify-center rounded-full px-2 py-1 text-xs font-semibold"
                                                     style={obtenerEstiloBadgeEstado(data.estadoReserva)}
                                                 >
                                                     {data.estadoReserva}
                                                 </span>
                                             </TableCell>
-                                            <TableCell className="overflow-visible px-3 py-3 align-top">
+                                            <TableCell className="overflow-visible px-2 py-3 align-top">
                                                 <div className="relative mx-auto flex w-fit items-center justify-center overflow-visible">
                                                     <button
                                                         type="button"
                                                         onClick={() => setMenuEstadoAbiertoId((prev) => prev === data.id_reserva ? null : data.id_reserva)}
-                                                        className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm transition-colors duration-150 hover:border-sky-200 hover:bg-sky-50"
+                                                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-xs font-medium text-slate-700 shadow-sm transition-colors duration-150 hover:border-sky-200 hover:bg-sky-50"
                                                     >
                                                         <span>Estado</span>
                                                         <svg xmlns="http://www.w3.org/2000/svg" className={`h-3.5 w-3.5 transition-transform duration-200 ${menuEstadoAbiertoId === data.id_reserva ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -1011,17 +1016,17 @@ export default function AgendaCitas() {
                                                     )}
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="px-3 py-3 text-center">
+                                            <TableCell className="px-2 py-3 text-center">
                                                 <button
                                                     type="button"
                                                     disabled={abriendoFichaReservaId === data.id_reserva}
                                                     onClick={() => verFichaClinicaPaciente(data)}
-                                                    className="inline-flex items-center gap-1.5 rounded-xl border border-sky-200 bg-sky-50/80 px-3 py-1.5 text-xs font-medium text-sky-700 transition-colors duration-150 hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-60">
+                                                    className="inline-flex items-center gap-1 rounded-xl border border-sky-200 bg-sky-50/80 px-2.5 py-1.5 text-xs font-medium text-sky-700 transition-colors duration-150 hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-60">
                                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                                         <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                                     </svg>
-                                                    Ficha
+                                                    Ver
                                                 </button>
                                             </TableCell>
                                         </TableRow>
