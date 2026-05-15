@@ -76,7 +76,6 @@ const desktopSections = [
             { href: "/dashboard/calendario", label: "Crear Reserva" },
             { href: "/dashboard/calendarioGeneral", label: "Calendario General" },
             { href: "/dashboard/bloqueosAgenda", label: "Bloquear Horarios" },
-            { href: "/dashboard/agendaCitas", label: "Estado de Reservaciones" },
         ],
     },
     {
