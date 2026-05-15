@@ -353,8 +353,8 @@ export default function DashboardLayout({ children }) {
                         <div className="rounded-xl bg-gradient-to-br from-white/[0.04] to-white/[0.01] ring-1 ring-white/[0.07] px-3.5 py-3">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <div className="text-[9.5px] font-semibold text-white/25 tracking-[0.1em] uppercase">Sistema</div>
-                                    <div className="mt-0.5 text-[12px] font-medium text-white/65">Operativo</div>
+                                    <div className="text-[9.5px] font-semibold text-white/25 tracking-[0.1em] uppercase">Sistema Operativo</div>
+                                    <div className="mt-0.5 text-[12px] font-medium text-white/65">AC 1.0.2</div>
                                 </div>
                                 <div className="relative flex items-center gap-1.5">
                                     <span className="absolute right-0 top-1/2 -translate-y-1/2 h-5 w-5 rounded-full bg-emerald-400/10 animate-ping" />
