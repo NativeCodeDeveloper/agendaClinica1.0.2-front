@@ -809,7 +809,7 @@ export default function AgendaCitas() {
         <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(186,230,253,0.28),_transparent_24%),linear-gradient(180deg,#f8fafc_0%,#ffffff_48%,#f8fafc_100%)]">
             <ToasterClient/>
 
-            <div className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 md:py-10 2xl:max-w-none">
+            <div className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 md:py-10 xl:max-w-none">
                 <div className="mb-6 overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/92 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur">
                     <div className="border-b border-slate-100 bg-[linear-gradient(135deg,rgba(15,23,42,0.98)_0%,rgba(49,46,129,0.96)_58%,rgba(8,145,178,0.92)_100%)] px-5 py-5 sm:px-6">
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -966,7 +966,7 @@ export default function AgendaCitas() {
                     </div>
 
                     <div className="overflow-visible rounded-[24px] border border-slate-200 bg-white/94 shadow-[0_16px_40px_rgba(15,23,42,0.06)]">
-                        <div className="flex flex-col gap-4 border-b border-slate-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] px-5 py-4 sm:px-6 2xl:flex-row 2xl:items-start 2xl:justify-between">
+                        <div className="flex flex-col gap-4 border-b border-slate-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] px-5 py-4 sm:px-6 xl:flex-row xl:items-start xl:justify-between">
                             <div className="space-y-2">
                                 <div className="flex items-start gap-3">
                                     <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-sky-200 bg-sky-50 text-sky-700">
@@ -982,9 +982,9 @@ export default function AgendaCitas() {
                                 </div>
                             </div>
 
-                            <div className="grid w-full grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3 2xl:w-auto">
+                            <div className="grid w-full grid-cols-1 gap-2 md:grid-cols-2 xl:w-auto xl:grid-cols-3">
                                 <Select value={String(id_profesional || "")} onValueChange={(value) => setId_profesional(value)}>
-                                    <SelectTrigger className="h-10 w-full rounded-xl border-slate-200 bg-white text-xs text-slate-700 shadow-sm 2xl:w-[170px]">
+                                    <SelectTrigger className="h-10 w-full rounded-xl border-slate-200 bg-white text-xs text-slate-700 shadow-sm xl:w-[170px]">
                                         <SelectValue placeholder="Filtrar profesional"/>
                                     </SelectTrigger>
                                     <SelectContent className="z-50 border border-slate-200 bg-white shadow-lg">
@@ -1001,7 +1001,7 @@ export default function AgendaCitas() {
                                     </SelectContent>
                                 </Select>
                                 <Select value={estadoReserva} onValueChange={(value) => setestadoReserva(value)}>
-                                    <SelectTrigger className="h-10 w-full rounded-xl border-slate-200 bg-white text-xs text-slate-700 shadow-sm 2xl:w-[170px]">
+                                    <SelectTrigger className="h-10 w-full rounded-xl border-slate-200 bg-white text-xs text-slate-700 shadow-sm xl:w-[170px]">
                                         <SelectValue placeholder="Filtrar por estado"/>
                                     </SelectTrigger>
                                     <SelectContent className="z-50 border border-slate-200 bg-white shadow-lg">
@@ -1020,7 +1020,7 @@ export default function AgendaCitas() {
                                         limpiarFiltrosPersistidos();
                                         listarTablaCitas();
                                     }}
-                                    className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm transition-all duration-150 hover:border-slate-300 hover:bg-slate-50 md:col-span-2 xl:col-span-1 2xl:w-[170px]">
+                                    className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm transition-all duration-150 hover:border-slate-300 hover:bg-slate-50 md:col-span-2 xl:col-span-1 xl:w-[170px]">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                                     </svg>
@@ -1029,7 +1029,7 @@ export default function AgendaCitas() {
                             </div>
                         </div>
 
-                        <div className="2xl:hidden px-4 pb-4 sm:px-6">
+                        <div className="xl:hidden px-4 pb-4 sm:px-6">
                             {dataLista.length === 0 ? (
                                 <div className="rounded-[22px] border border-slate-200 bg-white px-4 py-12 text-center">
                                     <p className="text-sm font-semibold text-slate-700">No hay reservaciones para mostrar</p>
@@ -1079,8 +1079,8 @@ export default function AgendaCitas() {
                             )}
                         </div>
 
-                        <div className="hidden overflow-x-auto pb-2 2xl:block">
-                            <Table className="min-w-[840px] table-fixed">
+                        <div className="hidden overflow-x-auto pb-2 xl:block">
+                            <Table className="min-w-[780px] table-fixed">
                                 <TableCaption className="py-4 text-xs font-medium text-slate-400">Listado de reservaciones registradas</TableCaption>
                                 <TableHeader>
                                     <TableRow className="border-b border-slate-200 bg-slate-950 hover:bg-slate-950">
