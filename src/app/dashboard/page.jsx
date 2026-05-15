@@ -153,6 +153,10 @@ export default function AgendaCitas() {
         return rutNormalizado ? `RUT: ${rutNormalizado}` : "RUT: Sin registro";
     }
 
+    function formatearEstadoVisible(estadoValor) {
+        return String(estadoValor || "").trim().toLowerCase();
+    }
+
     function formatearRutBusqueda(rutValor) {
         const rutNormalizado = normalizarRut(rutValor);
 
@@ -576,7 +580,7 @@ export default function AgendaCitas() {
     const accionesRapidasEstado = [
         {
             valor: "reservada",
-            etiqueta: "Reservada",
+            etiqueta: "reservada",
             icono: (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -585,7 +589,7 @@ export default function AgendaCitas() {
         },
         {
             valor: "confirmada",
-            etiqueta: "Confirmada",
+            etiqueta: "confirmada",
             icono: (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
@@ -594,7 +598,7 @@ export default function AgendaCitas() {
         },
         {
             valor: "anulada",
-            etiqueta: "Anulada",
+            etiqueta: "anulada",
             icono: (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 5.636L5.636 18.364M5.636 5.636l12.728 12.728"/>
@@ -603,7 +607,7 @@ export default function AgendaCitas() {
         },
         {
             valor: "asiste",
-            etiqueta: "Asiste",
+            etiqueta: "asiste",
             icono: (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14m0 0l-5-5m5 5l5-5"/>
@@ -612,7 +616,7 @@ export default function AgendaCitas() {
         },
         {
             valor: "no asiste",
-            etiqueta: "No Asiste",
+            etiqueta: "no asiste",
             icono: (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -621,7 +625,7 @@ export default function AgendaCitas() {
         },
         {
             valor: "finalizado",
-            etiqueta: "Finalizado",
+            etiqueta: "finalizado",
             icono: (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M14 9V5a3 3 0 00-3-3l-1 9V21h9.28a2 2 0 001.97-1.66l1.38-9A2 2 0 0020.66 8H14z" />
@@ -1046,7 +1050,7 @@ export default function AgendaCitas() {
                                                     className="inline-flex min-w-[112px] items-center justify-center rounded-full px-2.5 py-1 text-xs font-semibold"
                                                     style={obtenerEstiloBadgeEstado(data.estadoReserva)}
                                                 >
-                                                    {data.estadoReserva}
+                                                    {formatearEstadoVisible(data.estadoReserva)}
                                                 </span>
                                             </div>
 
@@ -1150,7 +1154,7 @@ export default function AgendaCitas() {
                                                     className="inline-flex min-w-[104px] items-center justify-center rounded-full px-2 py-1 text-xs font-semibold"
                                                     style={obtenerEstiloBadgeEstado(data.estadoReserva)}
                                                 >
-                                                    {data.estadoReserva}
+                                                    {formatearEstadoVisible(data.estadoReserva)}
                                                 </span>
                                             </TableCell>
                                             <TableCell className="overflow-visible px-2 py-3 align-top">
