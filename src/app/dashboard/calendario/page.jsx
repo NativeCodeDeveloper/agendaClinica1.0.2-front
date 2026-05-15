@@ -534,6 +534,47 @@ function CalendarioContent() {
         });
     }
 
+    function abrirPopupBloqueoExistente(eventoBloqueo) {
+        const bloqueo = eventoBloqueo?.resource;
+        const start = eventoBloqueo?.start;
+        const end = eventoBloqueo?.end;
+
+        if (!bloqueo?.id_bloqueo || !start || !end) {
+            toast.error("No se pudo cargar el bloqueo seleccionado.");
+            return;
+        }
+
+        setPopupMode("block");
+        setfechaInicio(formatearFechaLocal(start));
+        setHoraInicio(start.toTimeString().slice(0, 8));
+        setfechaFinalizacion(formatearFechaLocal(end));
+        setHoraFinalizacion(end.toTimeString().slice(0, 8));
+
+        setSelectionDraft({
+            start,
+            end,
+            profesional: obtenerNombreProfesionalSeleccionado(),
+            estadoReserva: null,
+            id_reserva: null,
+            id_bloqueo: bloqueo.id_bloqueo,
+        });
+
+        setPopupForm({
+            nombrePaciente: "",
+            apellidoPaciente: "",
+            rut: "",
+            telefono: "",
+            email: "",
+            motivoBloqueo: bloqueo.motivo || "",
+        });
+
+        setFloatingDraft(null);
+        setPopupPosition({
+            x: typeof window !== "undefined" ? Math.max(16, window.innerWidth / 2 - 210) : 320,
+            y: typeof window !== "undefined" ? Math.max(24, window.innerHeight / 2 - 300) : 140,
+        });
+    }
+
     function actualizarBorradorSeleccion(start, end) {
         const nextDraft = {
             start,
@@ -1029,6 +1070,7 @@ function CalendarioContent() {
             const respuestaBackend = await res.json();
             if (respuestaBackend.message === true) {
                 await refrescarCalendario();
+                limpiarSeleccionTemporal();
                 return toast.success("Se ha eliminado el bloqueo correctamente.");
             }
             return toast.error("No se ha podido eliminar el bloqueo. Intente más tarde.");
@@ -1099,14 +1141,8 @@ function CalendarioContent() {
             allDay: false,
         }));
 
-        if (currentView === "month") {
-            setEvents([...eventosReservas, ...eventosBloqueos]);
-            setBackgroundCalendarEvents([]);
-            return;
-        }
-
-        setEvents(eventosReservas);
-        setBackgroundCalendarEvents(eventosBloqueos);
+        setEvents([...eventosReservas, ...eventosBloqueos]);
+        setBackgroundCalendarEvents([]);
     }, [dataAgenda, dataBloqueos, currentView]);
 
     function obtenerPaletaEstadoReserva(estadoReserva = "") {
@@ -1925,6 +1961,10 @@ function CalendarioContent() {
                             }}
                             onSelectEvent={(event) => {
                                 limpiarSeleccionTemporal();
+                                if (event?.tipo === "bloqueo") {
+                                    abrirPopupBloqueoExistente(event);
+                                    return;
+                                }
                                 if (!event?.id_reserva) { toast.error("No se encontró el ID de la reserva"); return; }
                                 setid_reserva(event.id_reserva);
                                 seleccionarReservaEspecifica(event.id_reserva);
@@ -2052,10 +2092,14 @@ function CalendarioContent() {
                         >
                             <div>
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-violet-700">
-                                    {popupMode === "edit" ? "Editar agendamiento" : "Nuevo agendamiento"}
+                                    {popupMode === "edit" ? "Editar agendamiento" : popupMode === "block" ? "Bloqueo seleccionado" : "Nuevo agendamiento"}
                                 </p>
                                 <p className="mt-1 text-xs font-semibold text-slate-800 md:text-sm">
-                                    {popupMode === "edit" ? "Actualiza los datos de la reserva seleccionada" : "Confirma el rango seleccionado"}
+                                    {popupMode === "edit"
+                                        ? "Actualiza los datos de la reserva seleccionada"
+                                        : popupMode === "block"
+                                            ? "Revisa el bloqueo y elimínalo si ya no corresponde"
+                                            : "Confirma el rango seleccionado"}
                                 </p>
                             </div>
                             <button
@@ -2076,6 +2120,7 @@ function CalendarioContent() {
                                         type="date"
                                         value={formatearFechaLocal(selectionDraft.start)}
                                         onChange={(e) => actualizarFechaSeleccionDraft(e.target.value)}
+                                        disabled={popupMode === "block"}
                                         className="mt-2 h-9 w-full rounded-xl border border-violet-200 bg-white px-3 text-[12px] font-medium text-slate-800 outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
                                     />
                                 </div>
@@ -2087,6 +2132,7 @@ function CalendarioContent() {
                                         step="900"
                                         value={format(selectionDraft.start, "HH:mm")}
                                         onChange={(e) => actualizarHoraSeleccionDraft("start", e.target.value)}
+                                        disabled={popupMode === "block"}
                                         className="mt-2 h-9 w-full rounded-xl border border-violet-200 bg-white px-3 text-[12px] font-medium text-slate-800 outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
                                     />
                                 </div>
@@ -2098,6 +2144,7 @@ function CalendarioContent() {
                                         step="900"
                                         value={format(selectionDraft.end, "HH:mm")}
                                         onChange={(e) => actualizarHoraSeleccionDraft("end", e.target.value)}
+                                        disabled={popupMode === "block"}
                                         className="mt-2 h-9 w-full rounded-xl border border-violet-200 bg-white px-3 text-[12px] font-medium text-slate-800 outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
                                     />
                                 </div>
@@ -2108,63 +2155,81 @@ function CalendarioContent() {
                                 <div className="mt-1 font-semibold text-slate-800">{selectionDraft.profesional}</div>
                             </div>
 
-                            <div className="rounded-2xl border border-violet-100 bg-[linear-gradient(180deg,rgba(250,245,255,0.9),rgba(255,255,255,0.96))] px-3 py-3">
-                                <div className="mb-3">
-                                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-700">Paciente</p>
-                                    <p className="mt-1 text-xs text-slate-500">
-                                        {popupMode === "edit" ? "Modifica los datos del paciente o el horario de la reserva." : "Completa los datos para crear el agendamiento."}
-                                    </p>
-                                </div>
+                            {popupMode === "block" ? (
+                                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
+                                    <div className="mb-3">
+                                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">Detalle del bloqueo</p>
+                                        <p className="mt-1 text-xs text-slate-500">Este bloqueo fue seleccionado desde la grilla del calendario.</p>
+                                    </div>
 
-                                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                                     <div className="space-y-1">
-                                        <label className="text-[11px] text-slate-500">Nombre</label>
+                                        <label className="text-[11px] text-slate-500">Motivo</label>
                                         <input
-                                            value={popupForm.nombrePaciente}
-                                            onChange={(e) => setPopupForm((prev) => ({...prev, nombrePaciente: e.target.value}))}
-                                            className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-[12px] text-slate-800 outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
-                                            placeholder="Nombre"
-                                        />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-[11px] text-slate-500">Apellido</label>
-                                        <input
-                                            value={popupForm.apellidoPaciente}
-                                            onChange={(e) => setPopupForm((prev) => ({...prev, apellidoPaciente: e.target.value}))}
-                                            className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-[12px] text-slate-800 outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
-                                            placeholder="Apellido"
-                                        />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-[11px] text-slate-500">RUT</label>
-                                        <input
-                                            value={popupForm.rut}
-                                            onChange={(e) => setPopupForm((prev) => ({...prev, rut: e.target.value.replace(/[^a-zA-Z0-9]/g, "")}))}
-                                            className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-[12px] text-slate-800 outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
-                                            placeholder="12345678K"
-                                        />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-[11px] text-slate-500">Teléfono</label>
-                                        <input
-                                            value={popupForm.telefono}
-                                            onChange={(e) => setPopupForm((prev) => ({...prev, telefono: e.target.value}))}
-                                            className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-[12px] text-slate-800 outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
-                                            placeholder="+56..."
-                                        />
-                                    </div>
-                                    <div className="space-y-1 sm:col-span-2">
-                                        <label className="text-[11px] text-slate-500">Correo opcional</label>
-                                        <input
-                                            type="email"
-                                            value={popupForm.email}
-                                            onChange={(e) => setPopupForm((prev) => ({...prev, email: e.target.value}))}
-                                            className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-[12px] text-slate-800 outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
-                                            placeholder="No indicado"
+                                            value={popupForm.motivoBloqueo}
+                                            readOnly
+                                            className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-[12px] text-slate-800 outline-none"
                                         />
                                     </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <div className="rounded-2xl border border-violet-100 bg-[linear-gradient(180deg,rgba(250,245,255,0.9),rgba(255,255,255,0.96))] px-3 py-3">
+                                    <div className="mb-3">
+                                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-700">Paciente</p>
+                                        <p className="mt-1 text-xs text-slate-500">
+                                            {popupMode === "edit" ? "Modifica los datos del paciente o el horario de la reserva." : "Completa los datos para crear el agendamiento."}
+                                        </p>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                        <div className="space-y-1">
+                                            <label className="text-[11px] text-slate-500">Nombre</label>
+                                            <input
+                                                value={popupForm.nombrePaciente}
+                                                onChange={(e) => setPopupForm((prev) => ({...prev, nombrePaciente: e.target.value}))}
+                                                className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-[12px] text-slate-800 outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
+                                                placeholder="Nombre"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[11px] text-slate-500">Apellido</label>
+                                            <input
+                                                value={popupForm.apellidoPaciente}
+                                                onChange={(e) => setPopupForm((prev) => ({...prev, apellidoPaciente: e.target.value}))}
+                                                className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-[12px] text-slate-800 outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
+                                                placeholder="Apellido"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[11px] text-slate-500">RUT</label>
+                                            <input
+                                                value={popupForm.rut}
+                                                onChange={(e) => setPopupForm((prev) => ({...prev, rut: e.target.value.replace(/[^a-zA-Z0-9]/g, "")}))}
+                                                className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-[12px] text-slate-800 outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
+                                                placeholder="12345678K"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[11px] text-slate-500">Teléfono</label>
+                                            <input
+                                                value={popupForm.telefono}
+                                                onChange={(e) => setPopupForm((prev) => ({...prev, telefono: e.target.value}))}
+                                                className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-[12px] text-slate-800 outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
+                                                placeholder="+56..."
+                                            />
+                                        </div>
+                                        <div className="space-y-1 sm:col-span-2">
+                                            <label className="text-[11px] text-slate-500">Correo opcional</label>
+                                            <input
+                                                type="email"
+                                                value={popupForm.email}
+                                                onChange={(e) => setPopupForm((prev) => ({...prev, email: e.target.value}))}
+                                                className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-[12px] text-slate-800 outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
+                                                placeholder="No indicado"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {popupMode === "edit" && (
                                 <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
@@ -2240,13 +2305,23 @@ function CalendarioContent() {
                                     Eliminar reserva
                                 </button>
                             )}
-                            <button
-                                type="button"
-                                onClick={popupMode === "edit" ? confirmarActualizacionDesdePopup : confirmarAgendamientoDesdePopup}
-                                className="w-full rounded-xl bg-gradient-to-r from-violet-700 to-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(124,58,237,0.24)] transition-all hover:from-violet-600 hover:to-purple-500 md:w-auto"
-                            >
-                                {popupMode === "edit" ? "Actualizar reserva" : "Agendar"}
-                            </button>
+                            {popupMode === "block" ? (
+                                <button
+                                    type="button"
+                                    onClick={() => eliminarBloqueo(selectionDraft?.id_bloqueo)}
+                                    className="w-full rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-100 md:w-auto"
+                                >
+                                    Eliminar bloqueo
+                                </button>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={popupMode === "edit" ? confirmarActualizacionDesdePopup : confirmarAgendamientoDesdePopup}
+                                    className="w-full rounded-xl bg-gradient-to-r from-violet-700 to-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(124,58,237,0.24)] transition-all hover:from-violet-600 hover:to-purple-500 md:w-auto"
+                                >
+                                    {popupMode === "edit" ? "Actualizar reserva" : "Agendar"}
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

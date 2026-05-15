@@ -23,18 +23,29 @@ const links = [
   { label: "Inicio", href: "/dashboard", icon: Home },
   { label: "Calendario General", href: "/dashboard/calendarioGeneral", icon: PanelsTopLeft },
   { label: "Ingreso Agendamientos", href: "/dashboard/calendario", icon: CalendarDays },
+  { label: "Bloqueos de Agenda", href: "/dashboard/bloqueosAgenda", icon: CalendarDays },
   { label: "Estado de Reservaciones", href: "/dashboard/agendaCitas", icon: ClipboardPlus },
+  { label: "Lista de Pacientes", href: "/dashboard/listaPacientes", icon: Users },
   { label: "Ingreso de Pacientes", href: "/dashboard/GestionPaciente", icon: Users },
   { label: "Carpeta del paciente", href: "/dashboard/FichaClinica", icon: FileText },
+  { label: "Tratamientos Destacados", href: "/dashboard/publicacionesTituloDescripcion", icon: LayoutGrid },
   { label: "Publicaciones", href: "/dashboard/publicaciones", icon: LayoutGrid },
   { label: "Carrusel de Portada", href: "/dashboard/portadaEdit", icon: MonitorSmartphone },
+  { label: "Profesionales y Agendas", href: "/dashboard/profesionales", icon: Users },
+  { label: "Catálogo de Servicios", href: "/dashboard/ingresoProductos", icon: LayoutGrid },
+  { label: "Servicios Agendables", href: "/dashboard/serviciosAgendamiento", icon: LayoutGrid },
+  { label: "Tarifas de Consulta", href: "/dashboard/tarifaServicio", icon: FileText },
+  { label: "Plantillas de Fichas", href: "/dashboard/fichasClinicasPlantillas", icon: FileText },
+  { label: "Categorías de Servicios", href: "/dashboard/categoriasProductos", icon: LayoutGrid },
+  { label: "Catálogo de Exámenes", href: "/dashboard/examenesClinicos", icon: FileText },
 ];
 
 const sections = [
   { title: "Principal", items: [links[0]] },
-  { title: "Agenda Clínica", items: [links[1], links[2], links[3]] },
-  { title: "Registros Clínicos", items: [links[4], links[5]] },
-  { title: "Gestión de Contenido", items: [links[6], links[7]] },
+  { title: "Agenda Clínica", items: [links[1], links[2], links[3], links[4]] },
+  { title: "Registros Clínicos", items: [links[5], links[6], links[7]] },
+  { title: "Gestión de Contenido", items: [links[8], links[9], links[10]] },
+  { title: "Configuración Clínica", items: [links[11], links[12], links[13], links[14], links[15], links[16], links[17]] },
 ];
 
 export default function MobileNav() {
