@@ -154,7 +154,7 @@ export default function DashboardLayout({ children }) {
         <ClerkProvider>
             <div className="h-screen w-full overflow-hidden bg-white">
                 <div className="flex h-full w-full">
-                    <aside className="hidden h-screen w-[240px] shrink-0 flex-col border-r border-white/[0.06] bg-gray-900 font-[family-name:var(--font-inter)] text-white 2xl:flex">
+                    <aside className="hidden h-screen w-[240px] shrink-0 flex-col border-r border-white/[0.06] bg-gray-900 font-[family-name:var(--font-inter)] text-white lg:flex">
                         <div className="relative shrink-0 px-4 pb-3 pt-4">
                             <div className="relative flex justify-center">
                                 <div className="absolute inset-0 flex items-center justify-center">
