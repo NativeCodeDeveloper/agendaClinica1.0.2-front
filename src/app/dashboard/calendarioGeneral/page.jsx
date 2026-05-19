@@ -4,16 +4,12 @@ import {useState, useMemo, useEffect, useRef} from "react";
 import {useRouter} from "next/navigation";
 import {Calendar, dateFnsLocalizer} from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import format from "date-fns/format";
-import parse from "date-fns/parse";
-import startOfWeek from "date-fns/startOfWeek";
-import getDay from "date-fns/getDay";
+import { format, parse, startOfWeek, getDay } from "date-fns";
+import { es } from "date-fns/locale";
 import ShadcnInput from "@/Componentes/shadcnInput2";
 import ShadcnFechaHora from "@/Componentes/ShadcnFechaHora";
 import ToasterClient from "@/Componentes/ToasterClient";
 import {toast} from "react-hot-toast";
-
-import es from "date-fns/locale/es";
 import {SelectDinamic} from "@/Componentes/SelectDinamic";
 import {InfoButton} from "@/Componentes/InfoButton";
 
