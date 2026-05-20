@@ -1,10 +1,10 @@
 import { ClerkProvider } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import Link from "next/link";
 import { Michroma } from "next/font/google";
 import MobileNav from "./MobileNav";
 import SignOutBtn from "./SignOutBtn";
-import { getDashboardRoleFromClaims, getDashboardSectionsForRole } from "@/lib/dashboard-access";
+import { getDashboardRoleFromUser, getDashboardSectionsForRole } from "@/lib/dashboard-access";
 
 const michroma = Michroma({ weight: "400", subsets: ["latin"], display: "swap" });
 
@@ -94,8 +94,8 @@ function DesktopSection({ title, icon, items }) {
 }
 
 export default async function DashboardLayout({ children }) {
-    const { sessionClaims } = await auth();
-    const role = getDashboardRoleFromClaims(sessionClaims);
+    const user = await currentUser();
+    const role = getDashboardRoleFromUser(user);
     const desktopSections = getDashboardSectionsForRole(role);
 
     return (

@@ -1,7 +1,7 @@
 "use client"
 import {useParams} from "next/navigation";
 import {useState, useEffect, useRef} from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import {toast} from "react-hot-toast";
 import ToasterClient from "@/Componentes/ToasterClient";
 import formatearFecha from "@/FuncionesTranversales/funcionesTranversales.js"
@@ -15,7 +15,7 @@ import {CheckboxIcon} from "@radix-ui/react-icons";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import {InfoButton} from "@/Componentes/InfoButton";
-import { getDashboardRoleFromClaims, isBasicDashboardRole } from "@/lib/dashboard-access";
+import { getDashboardRoleFromUser, isBasicDashboardRole } from "@/lib/dashboard-access";
 
 
 function parsearDatosDinamicos(datos) {
@@ -119,13 +119,13 @@ function sanitizarRut(valor) {
 export default function Paciente() {
 
     const {id_paciente} = useParams();
-    const { sessionClaims } = useAuth();
+    const { user } = useUser();
     const [detallePaciente, setDetallePaciente] = useState([])
     const API = process.env.NEXT_PUBLIC_API_URL;
     const router = useRouter();
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
     const formularioEdicionRef = useRef(null);
-    const esPerfilBasico = isBasicDashboardRole(getDashboardRoleFromClaims(sessionClaims));
+    const esPerfilBasico = isBasicDashboardRole(getDashboardRoleFromUser(user));
 
     function nuevaFichaClinica() {
         router.push(`/dashboard/NuevaFicha/${id_paciente}`);
