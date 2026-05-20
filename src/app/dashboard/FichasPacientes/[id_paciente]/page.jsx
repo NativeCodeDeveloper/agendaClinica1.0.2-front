@@ -15,7 +15,7 @@ import {CheckboxIcon} from "@radix-ui/react-icons";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import {InfoButton} from "@/Componentes/InfoButton";
-import { getDashboardRoleFromUser, isBasicDashboardRole } from "@/lib/dashboard-access";
+import { canAccessOdontograma, canAccessRecetasEnFicha, getDashboardRoleFromUser } from "@/lib/dashboard-access";
 
 
 function parsearDatosDinamicos(datos) {
@@ -125,7 +125,9 @@ export default function Paciente() {
     const router = useRouter();
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
     const formularioEdicionRef = useRef(null);
-    const esPerfilBasico = isBasicDashboardRole(getDashboardRoleFromUser(user));
+    const role = getDashboardRoleFromUser(user);
+    const puedeVerOdontograma = canAccessOdontograma(role);
+    const puedeVerRecetas = canAccessRecetasEnFicha(role);
 
     function nuevaFichaClinica() {
         router.push(`/dashboard/NuevaFicha/${id_paciente}`);
@@ -883,7 +885,7 @@ export default function Paciente() {
                             </svg>
                             Nueva Ficha
                         </button>
-                        {!esPerfilBasico && (
+                        {puedeVerOdontograma && (
                             <button
                                 onClick={verOdontogramas}
                                 className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-600 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(16,185,129,0.24)] transition-all duration-150 hover:from-emerald-700 hover:to-cyan-700">
@@ -894,7 +896,7 @@ export default function Paciente() {
                             </button>
                         )}
 
-                        {!esPerfilBasico && (
+                        {puedeVerRecetas && (
                             <button
                                 onClick={()=> irAReceta(id_paciente)}
                                 className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-sky-600 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(14,165,233,0.24)] transition-all duration-150 hover:from-cyan-600 hover:to-sky-700">

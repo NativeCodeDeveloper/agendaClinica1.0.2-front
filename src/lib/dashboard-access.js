@@ -4,6 +4,8 @@ export const DASHBOARD_ROLES = {
   RECEPCIONISTA: "recepcionista",
   SECRETARIA: "secretaria",
   BASICO: "basico",
+  CLINICO_MEDICO: "clinico-medico",
+  ODONTOLOGICO: "odontologico",
   AGENDA: "agenda",
   CONFIGURACION: "configuracion",
 };
@@ -112,6 +114,59 @@ const routeMatchersByRole = {
     /^\/dashboard\/tarifaServicio$/,
     /^\/dashboard\/edicionPlantillaEspecifica\/.+$/,
   ],
+  [DASHBOARD_ROLES.CLINICO_MEDICO]: [
+    /^\/dashboard$/,
+    /^\/dashboard\/no-access$/,
+    /^\/dashboard\/calendario$/,
+    /^\/dashboard\/calendarioGeneral$/,
+    /^\/dashboard\/bloqueosAgenda$/,
+    /^\/dashboard\/AgendaDetalle\/.+$/,
+    /^\/dashboard\/listaPacientes$/,
+    /^\/dashboard\/GestionPaciente$/,
+    /^\/dashboard\/FichaClinica$/,
+    /^\/dashboard\/paciente\/.+$/,
+    /^\/dashboard\/FichasPacientes\/.+$/,
+    /^\/dashboard\/NuevaFicha\/.+$/,
+    /^\/dashboard\/EdicionFicha\/.+$/,
+    /^\/dashboard\/portadaEdit$/,
+    /^\/dashboard\/publicacionesTituloDescripcion$/,
+    /^\/dashboard\/publicaciones$/,
+    /^\/dashboard\/edicionPagina$/,
+    /^\/dashboard\/profesionales$/,
+    /^\/dashboard\/serviciosAgendamiento$/,
+    /^\/dashboard\/tarifaServicio$/,
+    /^\/dashboard\/recetaPacientes\/.+$/,
+    /^\/dashboard\/recetaRapida$/,
+    /^\/dashboard\/examenDocumento$/,
+  ],
+  [DASHBOARD_ROLES.ODONTOLOGICO]: [
+    /^\/dashboard$/,
+    /^\/dashboard\/no-access$/,
+    /^\/dashboard\/calendario$/,
+    /^\/dashboard\/calendarioGeneral$/,
+    /^\/dashboard\/bloqueosAgenda$/,
+    /^\/dashboard\/AgendaDetalle\/.+$/,
+    /^\/dashboard\/listaPacientes$/,
+    /^\/dashboard\/GestionPaciente$/,
+    /^\/dashboard\/FichaClinica$/,
+    /^\/dashboard\/paciente\/.+$/,
+    /^\/dashboard\/FichasPacientes\/.+$/,
+    /^\/dashboard\/NuevaFicha\/.+$/,
+    /^\/dashboard\/EdicionFicha\/.+$/,
+    /^\/dashboard\/portadaEdit$/,
+    /^\/dashboard\/publicacionesTituloDescripcion$/,
+    /^\/dashboard\/publicaciones$/,
+    /^\/dashboard\/edicionPagina$/,
+    /^\/dashboard\/profesionales$/,
+    /^\/dashboard\/serviciosAgendamiento$/,
+    /^\/dashboard\/tarifaServicio$/,
+    /^\/dashboard\/recetaPacientes\/.+$/,
+    /^\/dashboard\/recetaRapida$/,
+    /^\/dashboard\/examenDocumento$/,
+    /^\/dashboard\/odontogramasPaciente\/.+$/,
+    /^\/dashboard\/ingresoProductos$/,
+    /^\/dashboard\/categoriasProductos$/,
+  ],
   [DASHBOARD_ROLES.AGENDA]: [
     /^\/dashboard\/no-access$/,
     /^\/dashboard\/calendario$/,
@@ -215,4 +270,15 @@ export function getDashboardSectionsForRole(role) {
 
 export function isBasicDashboardRole(role) {
   return normalizeDashboardRole(role) === DASHBOARD_ROLES.BASICO;
+}
+
+export function canAccessOdontograma(role) {
+  return ![
+    DASHBOARD_ROLES.BASICO,
+    DASHBOARD_ROLES.CLINICO_MEDICO,
+  ].includes(normalizeDashboardRole(role));
+}
+
+export function canAccessRecetasEnFicha(role) {
+  return ![DASHBOARD_ROLES.BASICO].includes(normalizeDashboardRole(role));
 }
