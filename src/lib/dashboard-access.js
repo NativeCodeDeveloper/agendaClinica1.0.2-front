@@ -79,6 +79,7 @@ const routeMatchersByRole = {
     /^\/dashboard\/paciente\/.+$/,
   ],
   [DASHBOARD_ROLES.SECRETARIA]: [
+    /^\/dashboard$/,
     /^\/dashboard\/no-access$/,
     /^\/dashboard\/calendario$/,
     /^\/dashboard\/calendarioGeneral$/,
