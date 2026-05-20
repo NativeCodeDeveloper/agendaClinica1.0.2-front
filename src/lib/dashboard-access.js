@@ -2,6 +2,7 @@ export const DASHBOARD_ROLES = {
   DEFAULT: "default",
   ADMIN: "admin",
   RECEPCIONISTA: "recepcionista",
+  SECRETARIA: "secretaria",
   BASICO: "basico",
   AGENDA: "agenda",
   CONFIGURACION: "configuracion",
@@ -68,6 +69,16 @@ export const DASHBOARD_NAV_SECTIONS = [
 const routeMatchersByRole = {
   [DASHBOARD_ROLES.RECEPCIONISTA]: [
     /^\/dashboard$/,
+    /^\/dashboard\/no-access$/,
+    /^\/dashboard\/calendario$/,
+    /^\/dashboard\/calendarioGeneral$/,
+    /^\/dashboard\/agendaCitas$/,
+    /^\/dashboard\/bloqueosAgenda$/,
+    /^\/dashboard\/AgendaDetalle\/.+$/,
+    /^\/dashboard\/GestionPaciente$/,
+    /^\/dashboard\/paciente\/.+$/,
+  ],
+  [DASHBOARD_ROLES.SECRETARIA]: [
     /^\/dashboard\/no-access$/,
     /^\/dashboard\/calendario$/,
     /^\/dashboard\/calendarioGeneral$/,
