@@ -11,17 +11,12 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { publicContact } from "@/lib/publicContact";
 
 const CF_BASE = "https://imagedelivery.net/aCBUhLfqUcxA2yhIBn1fNQ";
 
 const fallbackSlides = [
   { id: "fallback-1", image: "/logoagendaclinica.png", alt: "Centro Médico", titulo: "", descripcion: "" },
-];
-
-const socialLinks = [
-  { icon: Instagram, href: "#", label: "Instagram" },
-  { icon: Facebook, href: "#", label: "Facebook" },
-  { icon: MessageCircle, href: "#", label: "WhatsApp" },
 ];
 
 export default function Portada() {
@@ -87,6 +82,15 @@ export default function Portada() {
   const safeSlides = useMemo(
     () => (backendSlides.length > 0 ? backendSlides : fallbackSlides),
     [backendSlides]
+  );
+  const socialLinks = useMemo(
+    () =>
+      [
+        { icon: Instagram, href: publicContact.socials.instagram, label: "Instagram" },
+        { icon: Facebook, href: publicContact.socials.facebook, label: "Facebook" },
+        { icon: MessageCircle, href: publicContact.whatsappUrl, label: "WhatsApp" },
+      ].filter((item) => item.href),
+    []
   );
 
   // ── Autoplay (5.2 s) ─────────────────────────────────
