@@ -38,7 +38,6 @@ export default function EdicionPagina() {
             // Usar la constante API en lugar de URL hardcodeada
             const res = await fetch(`${API}/titulo`);
             if (!res.ok) {
-                // Manejo suave: mostrar un mensaje en el estado y salir
                 settitulo("Problema en consulta a base de datos, contacte equipo de soporte");
                 return;
             }

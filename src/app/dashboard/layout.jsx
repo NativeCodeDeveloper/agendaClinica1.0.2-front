@@ -1,8 +1,10 @@
 import { ClerkProvider } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import { Michroma } from "next/font/google";
 import MobileNav from "./MobileNav";
 import SignOutBtn from "./SignOutBtn";
+import { getDashboardSectionsForRole } from "@/lib/dashboard-access";
 
 const michroma = Michroma({ weight: "400", subsets: ["latin"], display: "swap" });
 
@@ -63,64 +65,6 @@ function sectionIcon(icon) {
     }
 }
 
-const desktopSections = [
-    {
-        title: "Inicio",
-        icon: "home",
-        items: [{ href: "/dashboard", label: "Panel de Reservas" }],
-    },
-    {
-        title: "Agenda",
-        icon: "calendar",
-        items: [
-            { href: "/dashboard/calendario", label: "Crear Reserva" },
-            { href: "/dashboard/calendarioGeneral", label: "Calendario General" },
-            { href: "/dashboard/bloqueosAgenda", label: "Bloquear Horarios" },
-        ],
-    },
-    {
-        title: "Pacientes y Fichas",
-        icon: "user",
-        items: [
-            { href: "/dashboard/listaPacientes", label: "Ver Pacientes" },
-            { href: "/dashboard/GestionPaciente", label: "Registrar Paciente" },
-            { href: "/dashboard/FichaClinica", label: "Ficha Clínica" },
-        ],
-    },
-    {
-        title: "Documentos",
-        icon: "document",
-        items: [
-            { href: "/dashboard/presupuestoTratamiento", label: "Presupuesto de Tratamiento" },
-            { href: "/dashboard/recetaRapida", label: "Receta Médica" },
-            { href: "/dashboard/recetaLentes", label: "Receta de Lentes" },
-            { href: "/dashboard/examenDocumento", label: "Orden de Exámenes" },
-        ],
-    },
-    {
-        title: "Contenido web",
-        icon: "image",
-        items: [
-            { href: "/dashboard/portadaEdit", label: "Banners de Portada" },
-            { href: "/dashboard/publicacionesTituloDescripcion", label: "Tratamientos Destacados" },
-            { href: "/dashboard/publicaciones", label: "Publicaciones Web" },
-        ],
-    },
-    {
-        title: "Configuración Clínica",
-        icon: "settings",
-        items: [
-            { href: "/dashboard/profesionales", label: "Profesionales y Agendas" },
-            { href: "/dashboard/ingresoProductos", label: "Catálogo de Servicios" },
-            { href: "/dashboard/serviciosAgendamiento", label: "Servicios Agendables" },
-            { href: "/dashboard/tarifaServicio", label: "Tarifas de Consulta" },
-            { href: "/dashboard/fichasClinicasPlantillas", label: "Plantillas de Fichas" },
-            { href: "/dashboard/categoriasProductos", label: "Categorías de Servicios" },
-            { href: "/dashboard/examenesClinicos", label: "Catálogo de Exámenes" },
-        ],
-    },
-];
-
 function DesktopSection({ title, icon, items }) {
     return (
         <details className="group">
@@ -149,7 +93,11 @@ function DesktopSection({ title, icon, items }) {
     );
 }
 
-export default function DashboardLayout({ children }) {
+export default async function DashboardLayout({ children }) {
+    const { sessionClaims } = await auth();
+    const role = sessionClaims?.metadata?.role;
+    const desktopSections = getDashboardSectionsForRole(role);
+
     return (
         <ClerkProvider>
             <div className="h-screen w-full overflow-hidden bg-white">
@@ -226,7 +174,7 @@ export default function DashboardLayout({ children }) {
                     </aside>
 
                     <div className="min-w-0 flex-1 overflow-y-auto h-full">
-                        <MobileNav />
+                        <MobileNav role={role} />
                         <main className="min-w-0">
                             {children}
                         </main>

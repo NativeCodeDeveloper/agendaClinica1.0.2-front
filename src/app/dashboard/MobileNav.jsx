@@ -6,54 +6,34 @@ import { usePathname } from "next/navigation";
 import { Michroma } from "next/font/google";
 import {
   CalendarDays,
-  ClipboardPlus,
   FileText,
   Home,
-  LayoutGrid,
+  Image as ImageIcon,
   Menu,
-  MonitorSmartphone,
-  PanelsTopLeft,
-  Users,
+  Settings,
+  UserRound,
   X,
 } from "lucide-react";
+import { getDashboardSectionsForRole } from "@/lib/dashboard-access";
 
 const michroma = Michroma({ weight: "400", subsets: ["latin"], display: "swap" });
 
-const links = [
-  { label: "Inicio", href: "/dashboard", icon: Home },
-  { label: "Calendario General", href: "/dashboard/calendarioGeneral", icon: PanelsTopLeft },
-  { label: "Ingreso Agendamientos", href: "/dashboard/calendario", icon: CalendarDays },
-  { label: "Bloqueos de Agenda", href: "/dashboard/bloqueosAgenda", icon: CalendarDays },
-  { label: "Estado de Reservaciones", href: "/dashboard/agendaCitas", icon: ClipboardPlus },
-  { label: "Lista de Pacientes", href: "/dashboard/listaPacientes", icon: Users },
-  { label: "Ingreso de Pacientes", href: "/dashboard/GestionPaciente", icon: Users },
-  { label: "Carpeta del paciente", href: "/dashboard/FichaClinica", icon: FileText },
-  { label: "Tratamientos Destacados", href: "/dashboard/publicacionesTituloDescripcion", icon: LayoutGrid },
-  { label: "Publicaciones", href: "/dashboard/publicaciones", icon: LayoutGrid },
-  { label: "Carrusel de Portada", href: "/dashboard/portadaEdit", icon: MonitorSmartphone },
-  { label: "Profesionales y Agendas", href: "/dashboard/profesionales", icon: Users },
-  { label: "Catálogo de Servicios", href: "/dashboard/ingresoProductos", icon: LayoutGrid },
-  { label: "Servicios Agendables", href: "/dashboard/serviciosAgendamiento", icon: LayoutGrid },
-  { label: "Tarifas de Consulta", href: "/dashboard/tarifaServicio", icon: FileText },
-  { label: "Plantillas de Fichas", href: "/dashboard/fichasClinicasPlantillas", icon: FileText },
-  { label: "Categorías de Servicios", href: "/dashboard/categoriasProductos", icon: LayoutGrid },
-  { label: "Catálogo de Exámenes", href: "/dashboard/examenesClinicos", icon: FileText },
-];
+const iconsBySection = {
+  home: Home,
+  calendar: CalendarDays,
+  user: UserRound,
+  document: FileText,
+  image: ImageIcon,
+  settings: Settings,
+};
 
-const sections = [
-  { title: "Principal", items: [links[0]] },
-  { title: "Agenda Clínica", items: [links[1], links[2], links[3], links[4]] },
-  { title: "Registros Clínicos", items: [links[5], links[6], links[7]] },
-  { title: "Gestión de Contenido", items: [links[8], links[9], links[10]] },
-  { title: "Configuración Clínica", items: [links[11], links[12], links[13], links[14], links[15], links[16], links[17]] },
-];
-
-export default function MobileNav() {
+export default function MobileNav({ role }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const sections = getDashboardSectionsForRole(role);
 
   return (
-    <div className="lg:hidden sticky top-0 z-40">
+    <div className="sticky top-0 z-40 lg:hidden">
       <div className="border-b border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,250,252,0.94))] backdrop-blur-xl shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
         <div className="flex items-center justify-between gap-3 px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
@@ -70,18 +50,13 @@ export default function MobileNav() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
-              Móvil
-            </div>
-            <button
-              onClick={() => setOpen((prev) => !prev)}
-              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50"
-              aria-label={open ? "Cerrar menú" : "Abrir menú"}
-            >
-              {open ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}
-            </button>
-          </div>
+          <button
+            onClick={() => setOpen((prev) => !prev)}
+            className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50"
+            aria-label={open ? "Cerrar menú" : "Abrir menú"}
+          >
+            {open ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}
+          </button>
         </div>
       </div>
 
@@ -114,46 +89,47 @@ export default function MobileNav() {
             </div>
 
             <nav className="max-h-[72vh] space-y-4 overflow-y-auto px-4 pb-4 pt-4">
-              {sections.map((section) => (
-                <div
-                  key={section.title}
-                  className="rounded-2xl border border-slate-200/80 bg-white/80 p-2 shadow-[0_8px_18px_rgba(15,23,42,0.04)]"
-                >
-                  <div className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                    {section.title}
-                  </div>
+              {sections.map((section) => {
+                const SectionIcon = iconsBySection[section.icon] || Home;
 
-                  <div className="space-y-1">
-                    {section.items.map((item) => {
-                      const isActive = pathname === item.href;
-                      const Icon = item.icon;
+                return (
+                  <div
+                    key={section.title}
+                    className="rounded-2xl border border-slate-200/80 bg-white/80 p-2 shadow-[0_8px_18px_rgba(15,23,42,0.04)]"
+                  >
+                    <div className="flex items-center gap-2 px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                      <SectionIcon className="h-3.5 w-3.5" />
+                      {section.title}
+                    </div>
 
-                      return (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          onClick={() => setOpen(false)}
-                          className={`flex items-center gap-3 rounded-2xl px-3 py-3 text-[13px] font-medium transition-all ${
-                            isActive
-                              ? "border border-cyan-200 bg-[linear-gradient(135deg,rgba(236,254,255,1),rgba(239,246,255,0.95))] text-slate-900 shadow-sm"
-                              : "border border-transparent text-slate-600 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-900"
-                          }`}
-                        >
-                          <span
-                            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
-                              isActive ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500"
+                    <div className="space-y-1">
+                      {section.items.map((item) => {
+                        const isActive = pathname === item.href;
+
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setOpen(false)}
+                            className={`flex items-center gap-3 rounded-2xl px-3 py-3 text-[13px] font-medium transition-all ${
+                              isActive
+                                ? "border border-cyan-200 bg-[linear-gradient(135deg,rgba(236,254,255,1),rgba(239,246,255,0.95))] text-slate-900 shadow-sm"
+                                : "border border-transparent text-slate-600 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-900"
                             }`}
                           >
-                            <Icon className="h-4 w-4" />
-                          </span>
-                          <span className="flex-1 leading-tight">{item.label}</span>
-                          {isActive && <span className="h-2 w-2 rounded-full bg-cyan-500" />}
-                        </Link>
-                      );
-                    })}
+                            <span
+                              className={`h-2.5 w-2.5 rounded-full ${
+                                isActive ? "bg-cyan-500" : "bg-slate-300"
+                              }`}
+                            />
+                            <span className="flex-1 leading-tight">{item.label}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               <div className="rounded-2xl border border-cyan-100 bg-[linear-gradient(135deg,rgba(236,254,255,0.9),rgba(248,250,252,0.95))] p-2">
                 <Link

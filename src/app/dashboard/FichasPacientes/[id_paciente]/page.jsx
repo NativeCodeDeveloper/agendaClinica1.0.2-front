@@ -1,6 +1,7 @@
 "use client"
 import {useParams} from "next/navigation";
 import {useState, useEffect, useRef} from "react";
+import { useAuth } from "@clerk/nextjs";
 import {toast} from "react-hot-toast";
 import ToasterClient from "@/Componentes/ToasterClient";
 import formatearFecha from "@/FuncionesTranversales/funcionesTranversales.js"
@@ -14,6 +15,7 @@ import {CheckboxIcon} from "@radix-ui/react-icons";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import {InfoButton} from "@/Componentes/InfoButton";
+import { isBasicDashboardRole } from "@/lib/dashboard-access";
 
 
 function parsearDatosDinamicos(datos) {
@@ -117,11 +119,13 @@ function sanitizarRut(valor) {
 export default function Paciente() {
 
     const {id_paciente} = useParams();
+    const { sessionClaims } = useAuth();
     const [detallePaciente, setDetallePaciente] = useState([])
     const API = process.env.NEXT_PUBLIC_API_URL;
     const router = useRouter();
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
     const formularioEdicionRef = useRef(null);
+    const esPerfilBasico = isBasicDashboardRole(sessionClaims?.metadata?.role);
 
     function nuevaFichaClinica() {
         router.push(`/dashboard/NuevaFicha/${id_paciente}`);
@@ -879,25 +883,27 @@ export default function Paciente() {
                             </svg>
                             Nueva Ficha
                         </button>
-                        <button
-                            onClick={verOdontogramas}
-                            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-600 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(16,185,129,0.24)] transition-all duration-150 hover:from-emerald-700 hover:to-cyan-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75h4.5m-4.5 4.5h4.5M7.5 3.75h9A2.25 2.25 0 0118.75 6v12A2.25 2.25 0 0116.5 20.25h-9A2.25 2.25 0 015.25 18V6A2.25 2.25 0 017.5 3.75z"/>
-                            </svg>
-                            Ver Odontograma
-                        </button>
+                        {!esPerfilBasico && (
+                            <button
+                                onClick={verOdontogramas}
+                                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-600 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(16,185,129,0.24)] transition-all duration-150 hover:from-emerald-700 hover:to-cyan-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75h4.5m-4.5 4.5h4.5M7.5 3.75h9A2.25 2.25 0 0118.75 6v12A2.25 2.25 0 0116.5 20.25h-9A2.25 2.25 0 015.25 18V6A2.25 2.25 0 017.5 3.75z"/>
+                                </svg>
+                                Ver Odontograma
+                            </button>
+                        )}
 
-
-
-                        <button
-                            onClick={()=> irAReceta(id_paciente)}
-                            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-sky-600 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(14,165,233,0.24)] transition-all duration-150 hover:from-cyan-600 hover:to-sky-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6M7 4h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2z"/>
-                            </svg>
-                            Generar Receta Medica
-                        </button>
+                        {!esPerfilBasico && (
+                            <button
+                                onClick={()=> irAReceta(id_paciente)}
+                                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-sky-600 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(14,165,233,0.24)] transition-all duration-150 hover:from-cyan-600 hover:to-sky-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6M7 4h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2z"/>
+                                </svg>
+                                Generar Receta Medica
+                            </button>
+                        )}
                     </div>
                 </div>
 

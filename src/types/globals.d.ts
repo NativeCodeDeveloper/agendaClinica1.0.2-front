@@ -3,7 +3,7 @@ export {};
 declare global {
   interface CustomJwtSessionClaims {
     metadata: {
-      role?: "admin" | "recepcionista" | "basico" | "agenda" | "configuracion";
+      role?: "default" | "admin" | "recepcionista" | "basico" | "agenda" | "configuracion";
     };
   }
 }
