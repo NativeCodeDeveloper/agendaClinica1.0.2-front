@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Michroma } from "next/font/google";
 import MobileNav from "./MobileNav";
 import SignOutBtn from "./SignOutBtn";
-import { getDashboardSectionsForRole } from "@/lib/dashboard-access";
+import { getDashboardRoleFromClaims, getDashboardSectionsForRole } from "@/lib/dashboard-access";
 
 const michroma = Michroma({ weight: "400", subsets: ["latin"], display: "swap" });
 
@@ -95,7 +95,7 @@ function DesktopSection({ title, icon, items }) {
 
 export default async function DashboardLayout({ children }) {
     const { sessionClaims } = await auth();
-    const role = sessionClaims?.metadata?.role;
+    const role = getDashboardRoleFromClaims(sessionClaims);
     const desktopSections = getDashboardSectionsForRole(role);
 
     return (

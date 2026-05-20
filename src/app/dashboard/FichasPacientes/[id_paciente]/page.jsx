@@ -15,7 +15,7 @@ import {CheckboxIcon} from "@radix-ui/react-icons";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import {InfoButton} from "@/Componentes/InfoButton";
-import { isBasicDashboardRole } from "@/lib/dashboard-access";
+import { getDashboardRoleFromClaims, isBasicDashboardRole } from "@/lib/dashboard-access";
 
 
 function parsearDatosDinamicos(datos) {
@@ -125,7 +125,7 @@ export default function Paciente() {
     const router = useRouter();
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
     const formularioEdicionRef = useRef(null);
-    const esPerfilBasico = isBasicDashboardRole(sessionClaims?.metadata?.role);
+    const esPerfilBasico = isBasicDashboardRole(getDashboardRoleFromClaims(sessionClaims));
 
     function nuevaFichaClinica() {
         router.push(`/dashboard/NuevaFicha/${id_paciente}`);

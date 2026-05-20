@@ -153,6 +153,20 @@ export function normalizeDashboardRole(role) {
   return Object.values(DASHBOARD_ROLES).includes(roleValue) ? roleValue : null;
 }
 
+export function getDashboardRoleFromClaims(claims) {
+  if (!claims || typeof claims !== "object") return null;
+
+  const role =
+    claims?.metadata?.role ??
+    claims?.publicMetadata?.role ??
+    claims?.public_metadata?.role ??
+    claims?.unsafeMetadata?.role ??
+    claims?.unsafe_metadata?.role ??
+    null;
+
+  return normalizeDashboardRole(role);
+}
+
 export function canAccessDashboardPath(role, pathname) {
   const normalizedRole = normalizeDashboardRole(role);
   const cleanPath = sanitizePathname(pathname);

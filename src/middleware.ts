@@ -25,7 +25,7 @@ matcher: ['/dashboard/:path*'], // o simplemente [] si quieres que no aplique a 
 
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
-import { canAccessDashboardPath } from '@/lib/dashboard-access'
+import { canAccessDashboardPath, getDashboardRoleFromClaims } from '@/lib/dashboard-access'
 
 const isDashboard = createRouteMatcher(['/dashboard(.*)'])
 
@@ -40,7 +40,7 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   // Leer rol desde publicMetadata (configurado en Clerk Dashboard)
-  const role = (sessionClaims?.metadata as { role?: string } | undefined)?.role
+  const role = getDashboardRoleFromClaims(sessionClaims)
 
   if (!canAccessDashboardPath(role, req.nextUrl.pathname)) {
     return NextResponse.redirect(new URL('/dashboard/no-access', req.url))
@@ -52,5 +52,4 @@ export default clerkMiddleware(async (auth, req) => {
 export const config = {
   matcher: ['/dashboard/:path*'],
 }
-
 
