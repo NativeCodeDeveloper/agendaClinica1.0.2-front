@@ -69,21 +69,15 @@ export default function CalendarioMensualHoras() {
         return dias;
     };
 
-    // Genera los bloques de atención (60 min) según el día de la semana
-    // Lunes a Sábado: 09:00 - 22:00
-    // Domingo: No disponible
+    // Genera los bloques de atención (60 min)
+    // Todos los días: 09:00 - 22:00
     // Los inicios van separados por 70 minutos (60 atención + 10 descanso), pero los descansos no se muestran.
     const attentionSlots = useMemo(() => {
         if (!fechaSeleccionada) return [];
 
-        const dayOfWeek = fechaSeleccionada.getDay(); // 0=domingo, 6=sábado
-
-        // Domingo no tiene horarios
-        if (dayOfWeek === 0) return [];
-
         const slots = [];
         const startMinutes = 9 * 60; // 09:00
-        // Lunes a Sábado hasta 22:00
+        // Todos los días hasta 22:00
         const endMinutes = 22 * 60;
         let cursor = startMinutes;
 
@@ -126,20 +120,6 @@ export default function CalendarioMensualHoras() {
 
         if (day < today) {
             toast.error("No puedes agendar en fechas pasadas");
-            return;
-        }
-
-        // Validar que no sea domingo
-        const dayOfWeek = fecha.getDay();
-        if (dayOfWeek === 0) {
-            toast.error("Las atenciones son de Lunes a Sábado.\nLun-Sáb: 9:00-22:00", {
-                duration: 4000,
-                style: {
-                    background: '#FEE2E2',
-                    color: '#991B1B',
-                    border: '1px solid #FCA5A5',
-                }
-            });
             return;
         }
 
@@ -455,8 +435,7 @@ export default function CalendarioMensualHoras() {
                                 const day = new Date(dia);
                                 day.setHours(0, 0, 0, 0);
                                 const isPastDay = day < today;
-                                const isSunday = dia.getDay() === 0;
-                                const isDisabled = isPastDay || isSunday;
+                                const isDisabled = isPastDay;
                                 const isSelected = fechaSeleccionada?.toDateString() === dia.toDateString();
 
                                 return (
@@ -471,7 +450,7 @@ export default function CalendarioMensualHoras() {
                                         className={
                                             "h-10 flex items-center justify-center rounded-md text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1 " +
                                             (isDisabled
-                                                ? "cursor-not-allowed border border-slate-200/70 bg-white/60 text-slate-400 shadow-sm" + (isSunday ? " opacity-50" : "")
+                                                ? "cursor-not-allowed border border-slate-200/70 bg-white/60 text-slate-400 shadow-sm"
                                                 : isSelected
                                                     ? "border border-gray-900 bg-gray-900 text-white shadow-md shadow-gray-900/10"
                                                     : "border border-slate-200 bg-white/90 text-slate-700 shadow-sm hover:bg-white hover:border-gray-400 hover:shadow-md hover:shadow-slate-900/5")
@@ -603,7 +582,7 @@ export default function CalendarioMensualHoras() {
                         Atención clínica con un servicio personalizado para cada paciente.
                     </p>
                     <p className="mt-2 text-[11px] text-slate-400">
-                        Horarios: Lun-Sáb 9:00-22:00 | Dom Cerrado
+                        Horarios: Lunes a Domingo 9:00-22:00
                     </p>
                 </footer>
             </div>
