@@ -14,6 +14,15 @@ function formatDateToYMD(date) {
     return `${y}-${m}-${d}`;
 }
 
+function getTodayYMDInChile() {
+    return new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Santiago",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    }).format(new Date());
+}
+
 export default function CalendarioMensualHoras() {
     const {id_profesional} = useParams();
     const [nombreProfesional, setNombreProfesional] = useState("");
@@ -113,12 +122,10 @@ export default function CalendarioMensualHoras() {
 
     /* ---------- handlers ---------- */
     const seleccionarFecha = (fecha) => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const day = new Date(fecha);
-        day.setHours(0, 0, 0, 0);
+        const todayYMD = getTodayYMDInChile();
+        const dayYMD = formatDateToYMD(fecha);
 
-        if (day < today) {
+        if (dayYMD < todayYMD) {
             toast.error("No puedes agendar en fechas pasadas");
             return;
         }
@@ -430,11 +437,9 @@ export default function CalendarioMensualHoras() {
 
                         {dias.map((dia, i) =>
                             dia ? (() => {
-                                const today = new Date();
-                                today.setHours(0, 0, 0, 0);
-                                const day = new Date(dia);
-                                day.setHours(0, 0, 0, 0);
-                                const isPastDay = day < today;
+                                const todayYMD = getTodayYMDInChile();
+                                const dayYMD = formatDateToYMD(dia);
+                                const isPastDay = dayYMD < todayYMD;
                                 const isDisabled = isPastDay;
                                 const isSelected = fechaSeleccionada?.toDateString() === dia.toDateString();
 
