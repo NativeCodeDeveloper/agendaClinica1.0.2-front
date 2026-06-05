@@ -37,6 +37,12 @@ function normalizarCorreoOpcional(valor) {
     return correo || null;
 }
 
+function normalizarMontoReserva(valor) {
+    if (valor === "" || valor === null || valor === undefined) return 0;
+    const monto = Number(valor);
+    return Number.isFinite(monto) && monto >= 0 ? monto : null;
+}
+
 export default function Calendario() {
     return (
         <Suspense fallback={<div className="min-h-screen grid place-items-center"><span className="text-sm text-slate-400">Cargando calendario...</span></div>}>
@@ -228,6 +234,10 @@ function CalendarioContent() {
     const [horaFinalizacion, setHoraFinalizacion] = useState("");
     const [estadoReserva, setEstadoReserva] = useState("");
     const [id_reserva, setid_reserva] = useState(0);
+    const [monto_reserva, setMontoReserva] = useState("");
+    const [motivo_reserva, setMotivoReserva] = useState("");
+    const [listaTarifasProfesional, setListaTarifasProfesional] = useState([]);
+    const [id_tarifaProfesional, setIdTarifaProfesional] = useState("");
     const [dataAgenda, setDataAgenda] = useState([]);
     const [dataBloqueos, setDataBloqueos] = useState([]);
     const [listaProfesionales, setListaProfesionales] = useState([]);
@@ -248,6 +258,8 @@ function CalendarioContent() {
         telefono: "",
         email: "",
         motivoBloqueo: "",
+        monto_reserva: "",
+        motivo_reserva: "",
     });
 
     useEffect(() => {
@@ -296,6 +308,40 @@ function CalendarioContent() {
     useEffect(() => {
         seleccionarTodosProfesionalesCalendario();
     }, []);
+
+    async function cargarTarifasPorProfesional(profesionalId) {
+        if (!profesionalId) {
+            setListaTarifasProfesional([]);
+            setIdTarifaProfesional("");
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API}/tarifasProfesional/seleccionarTarifasPorProfesional`, {
+                method: "POST",
+                headers: {Accept: "application/json", "Content-Type": "application/json"},
+                mode: "cors",
+                body: JSON.stringify({profesional_id: Number(profesionalId)}),
+            });
+
+            if (!res.ok) {
+                setListaTarifasProfesional([]);
+                return toast.error("No fue posible cargar las consultas y tarifas del profesional.");
+            }
+
+            const data = await res.json();
+            setListaTarifasProfesional(Array.isArray(data) ? data : []);
+        } catch (error) {
+            console.log(error);
+            setListaTarifasProfesional([]);
+            return toast.error("No fue posible cargar las consultas y tarifas del profesional.");
+        }
+    }
+
+    useEffect(() => {
+        setIdTarifaProfesional("");
+        cargarTarifasPorProfesional(id_profesional);
+    }, [id_profesional]);
 
 
 
@@ -428,6 +474,7 @@ function CalendarioContent() {
         setSelectionDraft(null);
         setFloatingDraft(null);
         setPopupMode("create");
+        setIdTarifaProfesional("");
         setPopupForm({
             nombrePaciente: "",
             apellidoPaciente: "",
@@ -435,6 +482,8 @@ function CalendarioContent() {
             telefono: "",
             email: "",
             motivoBloqueo: "",
+            monto_reserva: "",
+            motivo_reserva: "",
         });
     }
 
@@ -464,6 +513,8 @@ function CalendarioContent() {
             telefono,
             email,
             motivoBloqueo: "",
+            monto_reserva,
+            motivo_reserva,
         });
         setFloatingDraft({
             id: "draft-selection",
@@ -500,6 +551,8 @@ function CalendarioContent() {
         setRut(reserva.rut ?? "");
         setTelefono(reserva.telefono ?? "");
         setEmail(reserva.email ?? "");
+        setMontoReserva(reserva.monto_reserva ?? "");
+        setMotivoReserva(reserva.motivo_reserva ?? "");
         setEstadoReserva(reserva.estadoReserva ?? "reservada");
         setfechaInicio(formatearFechaLocal(start));
         setHoraInicio(start.toTimeString().slice(0, 8));
@@ -521,7 +574,14 @@ function CalendarioContent() {
             telefono: reserva.telefono ?? "",
             email: reserva.email ?? "",
             motivoBloqueo: "",
+            monto_reserva: reserva.monto_reserva ?? "",
+            motivo_reserva: reserva.motivo_reserva ?? "",
         });
+        const tarifaReserva = listaTarifasProfesional.find((tarifa) => (
+            String(tarifa.nombreServicio ?? "").trim() === String(reserva.motivo_reserva ?? "").trim() &&
+            Number(tarifa.precio) === Number(reserva.monto_reserva)
+        ));
+        setIdTarifaProfesional(tarifaReserva ? String(tarifaReserva.id_tarifaProfesional) : "");
 
         setFloatingDraft(null);
         setPopupPosition({
@@ -562,6 +622,8 @@ function CalendarioContent() {
             telefono: "",
             email: "",
             motivoBloqueo: bloqueo.motivo || "",
+            monto_reserva: "",
+            motivo_reserva: "",
         });
 
         setFloatingDraft(null);
@@ -594,6 +656,45 @@ function CalendarioContent() {
         setHoraInicio(start.toTimeString().slice(0, 8));
         setfechaFinalizacion(formatearFechaLocal(end));
         setHoraFinalizacion(end.toTimeString().slice(0, 8));
+    }
+
+    function aplicarTarifaSeleccionada(tarifaId, actualizarPopup = true) {
+        const tarifa = listaTarifasProfesional.find(
+            (item) => String(item.id_tarifaProfesional) === String(tarifaId)
+        );
+        if (!tarifa) return;
+
+        if (selectionDraft && Number(tarifa.duracion_min) > 0) {
+            const nuevoFin = new Date(
+                selectionDraft.start.getTime() + Number(tarifa.duracion_min) * 60000
+            );
+
+            if (!estaDentroHorarioAgenda(selectionDraft.start, nuevoFin)) {
+                toast.error("La duración de esta consulta supera el horario disponible.");
+                return;
+            }
+
+            if (isOverlapping(selectionDraft.start, nuevoFin, selectionDraft.id_reserva ?? null)) {
+                toast.error("La duración de esta consulta se superpone con otro horario.");
+                return;
+            }
+
+            actualizarBorradorSeleccion(selectionDraft.start, nuevoFin);
+        }
+
+        const motivo = String(tarifa.nombreServicio ?? "").trim();
+        const monto = String(tarifa.precio ?? "");
+        setIdTarifaProfesional(tarifaId);
+        setMotivoReserva(motivo);
+        setMontoReserva(monto);
+
+        if (actualizarPopup) {
+            setPopupForm((prev) => ({
+                ...prev,
+                motivo_reserva: motivo,
+                monto_reserva: monto,
+            }));
+        }
     }
 
     function actualizarHoraSeleccionDraft(campo, valorHora) {
@@ -838,10 +939,15 @@ function CalendarioContent() {
     }, [draggingPopup]);
 
 
-    async function insertarNuevaReserva(nombrePaciente, apellidoPaciente, rut, telefono, email, fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion,id_profesional) {
+    async function insertarNuevaReserva(nombrePaciente, apellidoPaciente, rut, telefono, email, fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion, id_profesional, monto_reserva = "", motivo_reserva = "") {
         try {
-            if (!nombrePaciente || !apellidoPaciente || !rut || !telefono || !fechaInicio || !horaInicio || !horaFinalizacion || !id_profesional) {
+            if (!nombrePaciente || !apellidoPaciente || !rut || !telefono || !fechaInicio || !horaInicio || !horaFinalizacion || !id_profesional || !String(motivo_reserva).trim()) {
                 toast.error('Debe llenar todos los campos');
+                return false;
+            }
+            const montoNormalizado = normalizarMontoReserva(monto_reserva);
+            if (montoNormalizado === null) {
+                toast.error("El valor de la reserva debe ser un número válido.");
                 return false;
             }
             const correoNormalizado = normalizarCorreoOpcional(email);
@@ -870,7 +976,21 @@ function CalendarioContent() {
                     method: "POST",
                     headers: {Accept: "application/json", "Content-Type": "application/json"},
                     mode: "cors",
-                    body: JSON.stringify({nombrePaciente, apellidoPaciente, rut, telefono, email: correoNormalizado, fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion, estadoReserva: "reservada" ,id_profesional})
+                    body: JSON.stringify({
+                        nombrePaciente,
+                        apellidoPaciente,
+                        rut,
+                        telefono,
+                        email: correoNormalizado,
+                        fechaInicio,
+                        horaInicio,
+                        fechaFinalizacion,
+                        horaFinalizacion,
+                        estadoReserva: "reservada",
+                        id_profesional,
+                        monto_reserva: montoNormalizado,
+                        motivo_reserva: String(motivo_reserva).trim(),
+                    })
                 });
                 const respuestaBackend = await res.json();
                 if (!res.ok && respuestaBackend.message === "conflicto") {
@@ -993,7 +1113,9 @@ function CalendarioContent() {
             end.toTimeString().slice(0, 8),
             reservaOriginal.estadoReserva,
             reservaOriginal.id_profesional,
-            reservaOriginal.id_reserva
+            reservaOriginal.id_reserva,
+            reservaOriginal.monto_reserva ?? "",
+            reservaOriginal.motivo_reserva ?? ""
         );
     }
 
@@ -1351,10 +1473,15 @@ function CalendarioContent() {
         </div>
     );
 
-    async function actualizarInformacionReserva(nombrePaciente, apellidoPaciente, rut, telefono, email, fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion, estadoReserva, id_profesional, id_reserva) {
+    async function actualizarInformacionReserva(nombrePaciente, apellidoPaciente, rut, telefono, email, fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion, estadoReserva, id_profesional, id_reserva, monto_reserva = "", motivo_reserva = "") {
         try {
             if (!nombrePaciente || !apellidoPaciente || !rut || !telefono || !fechaInicio || !horaInicio || !fechaFinalizacion || !horaFinalizacion || !estadoReserva || !id_profesional || !id_reserva) {
                 toast.error("Debe llenar todos los campos para poder actualizar la reserva");
+                return false;
+            }
+            const montoNormalizado = normalizarMontoReserva(monto_reserva);
+            if (montoNormalizado === null) {
+                toast.error("El valor de la reserva debe ser un número válido.");
                 return false;
             }
             const correoNormalizado = normalizarCorreoOpcional(email);
@@ -1362,7 +1489,22 @@ function CalendarioContent() {
                 method: "POST",
                 headers: {Accept: "application/json", "Content-Type": "application/json"},
                 mode: "cors",
-                body: JSON.stringify({nombrePaciente, apellidoPaciente, rut, telefono, email: correoNormalizado, fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion, estadoReserva, id_profesional, id_reserva})
+                body: JSON.stringify({
+                    nombrePaciente,
+                    apellidoPaciente,
+                    rut,
+                    telefono,
+                    email: correoNormalizado,
+                    fechaInicio,
+                    horaInicio,
+                    fechaFinalizacion,
+                    horaFinalizacion,
+                    estadoReserva,
+                    id_profesional,
+                    id_reserva,
+                    monto_reserva: montoNormalizado,
+                    motivo_reserva: String(motivo_reserva ?? "").trim(),
+                })
             });
             const respuestaBackend = await res.json();
             if (!res.ok && respuestaBackend.message === "conflicto") {
@@ -1412,6 +1554,8 @@ function CalendarioContent() {
             setHoraFinalizacion(reserva.horaFinalizacion ?? "");
             setEstadoReserva(reserva.estadoReserva ?? "");
             setId_profesional(normalizarIdProfesional(reserva.id_profesional));
+            setMontoReserva(reserva.monto_reserva ?? "");
+            setMotivoReserva(reserva.motivo_reserva ?? "");
         } catch (error) {
             console.log(error);
             return toast.error("El servidor no responde");
@@ -1424,6 +1568,7 @@ function CalendarioContent() {
 
     function limpiarData() {
         setNombrePaciente(""); setApellidoPaciente(""); setTelefono(""); setRut(""); setEmail("");
+        setMontoReserva(""); setMotivoReserva("");
     }
 
     async function cambiarEstadoRapido(estadoNuevo) {
@@ -1444,7 +1589,9 @@ function CalendarioContent() {
             horaFinalizacion,
             estadoNuevo,
             id_profesional,
-            id_reserva
+            id_reserva,
+            monto_reserva,
+            motivo_reserva
         );
 
         if (actualizado) {
@@ -1480,7 +1627,9 @@ function CalendarioContent() {
             selectionDraft.start.toTimeString().slice(0, 8),
             formatearFechaLocal(selectionDraft.end),
             selectionDraft.end.toTimeString().slice(0, 8),
-            id_profesional
+            id_profesional,
+            popupForm.monto_reserva,
+            popupForm.motivo_reserva
         );
         if (created) {
             setNombrePaciente(popupForm.nombrePaciente);
@@ -1488,6 +1637,8 @@ function CalendarioContent() {
             setRut(popupForm.rut);
             setTelefono(popupForm.telefono);
             setEmail(popupForm.email);
+            setMontoReserva(popupForm.monto_reserva);
+            setMotivoReserva(popupForm.motivo_reserva);
             limpiarSeleccionTemporal();
         }
     }
@@ -1507,7 +1658,9 @@ function CalendarioContent() {
             selectionDraft.end.toTimeString().slice(0, 8),
             selectionDraft.estadoReserva || estadoReserva || "reservada",
             id_profesional,
-            selectionDraft.id_reserva
+            selectionDraft.id_reserva,
+            popupForm.monto_reserva,
+            popupForm.motivo_reserva
         );
 
         if (actualizado) {
@@ -1516,6 +1669,8 @@ function CalendarioContent() {
             setRut(popupForm.rut);
             setTelefono(popupForm.telefono);
             setEmail(popupForm.email);
+            setMontoReserva(popupForm.monto_reserva);
+            setMotivoReserva(popupForm.motivo_reserva);
             setEstadoReserva(selectionDraft.estadoReserva || estadoReserva || "reservada");
             setid_reserva(selectionDraft.id_reserva);
             limpiarSeleccionTemporal();
@@ -1560,6 +1715,8 @@ function CalendarioContent() {
                     setfechaFinalizacion("");
                     setHoraFinalizacion("");
                     setEstadoReserva("");
+                    setMontoReserva("");
+                    setMotivoReserva("");
                     return toast.success("Se ha eliminado con exito la reserva");
                 } else if (respuestaBackend.message === false) {
                     return toast.success("No se ha podido eliminar la reserva. Intente mas tarde.");
@@ -1720,6 +1877,28 @@ function CalendarioContent() {
                                     <label className="mb-1 block text-sm font-medium text-slate-700">Teléfono</label>
                                     <ShadcnInput value={telefono ?? ""} onChange={(e) => setTelefono(e.target.value)} className="h-11 rounded-xl border-slate-200 bg-white"/>
                                 </div>
+                                <div className="md:col-span-2">
+                                    <label className="mb-1 block text-sm font-medium text-slate-700">Motivo de la consulta</label>
+                                    <SelectDinamic
+                                        value={id_tarifaProfesional}
+                                        onChange={(e) => aplicarTarifaSeleccionada(e.target.value, false)}
+                                        options={listaTarifasProfesional.map((tarifa) => ({
+                                            value: String(tarifa.id_tarifaProfesional),
+                                            label: `${tarifa.nombreServicio} · $${Number(tarifa.precio || 0).toLocaleString("es-CL")} · ${tarifa.duracion_min} min`,
+                                        }))}
+                                        placeholder={listaTarifasProfesional.length > 0 ? "Selecciona una consulta" : "Sin tarifas configuradas"}
+                                        className="h-11 rounded-xl border-slate-200 bg-white"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium text-slate-700">Valor de la reserva</label>
+                                    <ShadcnInput
+                                        value={monto_reserva ? `$${Number(monto_reserva).toLocaleString("es-CL")}` : ""}
+                                        readOnly
+                                        placeholder="Selecciona una consulta"
+                                        className="h-11 rounded-xl border-slate-200 bg-slate-50"
+                                    />
+                                </div>
                             </div>
                         </section>
 
@@ -1811,7 +1990,7 @@ function CalendarioContent() {
                                     Ingresar Paciente
                                 </button>
                                 <button
-                                    onClick={() => insertarNuevaReserva(nombrePaciente, apellidoPaciente, rut, telefono, email, fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion, id_profesional)}
+                                    onClick={() => insertarNuevaReserva(nombrePaciente, apellidoPaciente, rut, telefono, email, fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion, id_profesional, monto_reserva, motivo_reserva)}
                                     className="inline-flex min-h-[42px] items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(14,165,233,0.18)] transition-all duration-150 hover:from-sky-700 hover:to-cyan-600">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/>
@@ -1820,7 +1999,7 @@ function CalendarioContent() {
                                 </button>
 
                                 <button
-                                    onClick={() => actualizarInformacionReserva(nombrePaciente, apellidoPaciente, rut, telefono, email, fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion, estadoReserva, id_profesional, id_reserva)}
+                                    onClick={() => actualizarInformacionReserva(nombrePaciente, apellidoPaciente, rut, telefono, email, fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion, estadoReserva, id_profesional, id_reserva, monto_reserva, motivo_reserva)}
                                     className="inline-flex min-h-[42px] items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(79,70,229,0.22)] transition-all duration-150 hover:from-violet-700 hover:to-indigo-700">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -2222,6 +2401,27 @@ function CalendarioContent() {
                                                 className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-[12px] text-slate-800 outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
                                                 placeholder="No indicado"
                                             />
+                                        </div>
+                                        <div className="space-y-1 sm:col-span-2">
+                                            <label className="text-[11px] text-slate-500">Motivo de la consulta</label>
+                                            <SelectDinamic
+                                                value={id_tarifaProfesional}
+                                                onChange={(e) => aplicarTarifaSeleccionada(e.target.value)}
+                                                options={listaTarifasProfesional.map((tarifa) => ({
+                                                    value: String(tarifa.id_tarifaProfesional),
+                                                    label: `${tarifa.nombreServicio} · $${Number(tarifa.precio || 0).toLocaleString("es-CL")} · ${tarifa.duracion_min} min`,
+                                                }))}
+                                                placeholder={listaTarifasProfesional.length > 0 ? "Selecciona una consulta" : "Sin tarifas configuradas"}
+                                                className="h-9 rounded-xl border-slate-200 bg-white text-[12px]"
+                                            />
+                                        </div>
+                                        <div className="space-y-1 sm:col-span-2">
+                                            <label className="text-[11px] text-slate-500">Valor de la reserva</label>
+                                            <div className="flex h-9 items-center rounded-xl border border-slate-200 bg-slate-50 px-3 text-[12px] font-semibold text-slate-700">
+                                                {popupForm.monto_reserva
+                                                    ? `$${Number(popupForm.monto_reserva).toLocaleString("es-CL")}`
+                                                    : "Selecciona una consulta"}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

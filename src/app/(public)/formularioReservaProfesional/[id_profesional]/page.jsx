@@ -199,6 +199,9 @@ export default function FormularioReservaProfesional() {
         setRut("");
         setTelefono("");
         setEmail("");
+        setServicioSeleccionado("");
+        setTarifaSeleccionadaIndex("");
+        setTotalPago("");
         router.push(`/reserva-hora?fecha=${fechaInicio}&hora=${horaInicio}&profesional=${encodeURIComponent(profesionalSeleccionado)}`);
     }
 
@@ -215,12 +218,19 @@ export default function FormularioReservaProfesional() {
         horaInicio,
         fechaFinalizacion,
         horaFinalizacion,
-        id_profesional
+        id_profesional,
+        motivo_reserva,
+        monto_reserva
     ){
         try {
 
-            if (!nombrePaciente || !apellidoPaciente || !rut || !telefono || !email || !fechaInicio || !horaInicio || !horaFinalizacion || !id_profesional) {
+            if (!nombrePaciente || !apellidoPaciente || !rut || !telefono || !email || !fechaInicio || !horaInicio || !fechaFinalizacion || !horaFinalizacion || !id_profesional) {
                 toast.error('Debe llenar todos los campos');
+                return false;
+            }
+
+            if (!motivo_reserva || !monto_reserva || Number(monto_reserva) <= 0) {
+                toast.error("Debe seleccionar un motivo de consulta.");
                 return false;
             }
 
@@ -239,7 +249,10 @@ export default function FormularioReservaProfesional() {
                     fechaFinalizacion,
                     horaFinalizacion,
                     estadoReserva: "reservada" ,
-                    id_profesional})
+                    id_profesional,
+                    motivo_reserva,
+                    monto_reserva: Number(monto_reserva),
+                })
             });
 
             const respuestaBackend = await res.json();
@@ -438,7 +451,9 @@ export default function FormularioReservaProfesional() {
                                     horaInicio,
                                     fechaFinalizacion,
                                     horaFin,
-                                    id_profesional
+                                    id_profesional,
+                                    servicioSeleccionado,
+                                    totalPago
                                 );
                             }}
                         />

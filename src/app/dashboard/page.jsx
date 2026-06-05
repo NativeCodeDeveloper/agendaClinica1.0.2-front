@@ -134,12 +134,123 @@ export default function AgendaCitas() {
         return String(hora).slice(0, 5);
     }
 
+    function formatearMontoReserva(monto) {
+        const valor = Number(monto);
+        if (!Number.isFinite(valor)) return "Sin valor";
+
+        return new Intl.NumberFormat("es-CL", {
+            style: "currency",
+            currency: "CLP",
+            maximumFractionDigits: 0,
+        }).format(valor);
+    }
+
     function obtenerNombreProfesionalReserva(reserva) {
         if (reserva?.nombreProfesional) return reserva.nombreProfesional;
         const profesional = listaProfesionales.find(
             (item) => String(item.id_profesional) === String(reserva?.id_profesional)
         );
         return profesional?.nombreProfesional ?? "Sin profesional";
+    }
+
+    async function descargarReservacionesExcel() {
+        if (!Array.isArray(dataLista) || dataLista.length === 0) {
+            return toast.error("No hay reservaciones visibles para exportar.");
+        }
+
+        try {
+            const escaparXml = (valor) => String(valor ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&apos;");
+
+            const encabezados = [
+                "Fecha",
+                "Hora inicio",
+                "Hora término",
+                "Paciente",
+                "RUT",
+                "Teléfono",
+                "Correo",
+                "Profesional",
+                "Motivo de consulta",
+                "Valor reserva",
+                "Estado",
+            ];
+
+            const filasXml = dataLista.map((reserva) => {
+                const valores = [
+                    formatearFechaDashboard(reserva.fechaInicio),
+                    formatearHoraDashboard(reserva.horaInicio),
+                    formatearHoraDashboard(reserva.horaFinalizacion),
+                    `${reserva.nombrePaciente || ""} ${reserva.apellidoPaciente || ""}`.trim(),
+                    normalizarRut(reserva.rut),
+                    reserva.telefono || "",
+                    reserva.email || "",
+                    obtenerNombreProfesionalReserva(reserva),
+                    reserva.motivo_reserva || "Sin consulta asignada",
+                    Number(reserva.monto_reserva) || 0,
+                    formatearEstadoVisible(reserva.estadoReserva),
+                ];
+
+                return `<Row>${valores.map((valor, index) => (
+                    index === 9
+                        ? `<Cell ss:StyleID="Currency"><Data ss:Type="Number">${valor}</Data></Cell>`
+                        : `<Cell><Data ss:Type="String">${escaparXml(valor)}</Data></Cell>`
+                )).join("")}</Row>`;
+            }).join("");
+
+            const contenidoExcel = `<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Styles>
+  <Style ss:ID="Header">
+   <Font ss:Bold="1" ss:Color="#FFFFFF"/>
+   <Interior ss:Color="#0F172A" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="Currency">
+   <NumberFormat ss:Format="$#,##0"/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="Reservaciones">
+  <Table>
+   ${encabezados.map((encabezado) => `<Column ss:AutoFitWidth="1" ss:Width="${encabezado === "Motivo de consulta" ? 220 : 100}"/>`).join("")}
+   <Row>${encabezados.map((encabezado) => `<Cell ss:StyleID="Header"><Data ss:Type="String">${escaparXml(encabezado)}</Data></Cell>`).join("")}</Row>
+   ${filasXml}
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <FreezePanes/>
+   <FrozenNoSplit/>
+   <SplitHorizontal>1</SplitHorizontal>
+   <TopRowBottomPane>1</TopRowBottomPane>
+   <ActivePane>2</ActivePane>
+  </WorksheetOptions>
+ </Worksheet>
+</Workbook>`;
+
+            const fechaArchivo = new Date().toISOString().slice(0, 10);
+            const blob = new Blob([`\uFEFF${contenidoExcel}`], {
+                type: "application/vnd.ms-excel;charset=utf-8",
+            });
+            const url = URL.createObjectURL(blob);
+            const enlace = document.createElement("a");
+            enlace.href = url;
+            enlace.download = `reservaciones-${fechaArchivo}.xls`;
+            document.body.appendChild(enlace);
+            enlace.click();
+            enlace.remove();
+            URL.revokeObjectURL(url);
+
+            return toast.success("Archivo Excel descargado correctamente.");
+        } catch (error) {
+            console.log(error);
+            return toast.error("No se pudo generar el archivo Excel.");
+        }
     }
 
     function normalizarRut(rutValor) {
@@ -982,7 +1093,7 @@ export default function AgendaCitas() {
                                 </div>
                             </div>
 
-                            <div className="grid w-full grid-cols-1 gap-2 md:grid-cols-2 xl:w-auto xl:grid-cols-3">
+                            <div className="grid w-full grid-cols-1 gap-2 md:grid-cols-2 xl:w-auto xl:grid-cols-4">
                                 <Select value={String(id_profesional || "")} onValueChange={(value) => setId_profesional(value)}>
                                     <SelectTrigger className="h-10 w-full rounded-xl border-slate-200 bg-white text-xs text-slate-700 shadow-sm xl:w-[170px]">
                                         <SelectValue placeholder="Filtrar profesional"/>
@@ -1026,6 +1137,17 @@ export default function AgendaCitas() {
                                     </svg>
                                     Ver todo
                                 </button>
+                                <button
+                                    type="button"
+                                    onClick={descargarReservacionesExcel}
+                                    disabled={dataLista.length === 0}
+                                    className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 shadow-sm transition-all duration-150 hover:border-emerald-300 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50 xl:w-[170px]"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14a2 2 0 002-2v-3M5 21a2 2 0 01-2-2v-3" />
+                                    </svg>
+                                    Descargar Excel
+                                </button>
                             </div>
                         </div>
 
@@ -1064,6 +1186,15 @@ export default function AgendaCitas() {
                                                     <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Profesional</p>
                                                     <p className="mt-1 text-base font-medium text-slate-700">{obtenerNombreProfesionalReserva(data)}</p>
                                                 </div>
+                                                <div className="rounded-2xl border border-violet-100 bg-violet-50/45 px-3.5 py-3">
+                                                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-violet-500">Consulta</p>
+                                                    <p className="mt-1 text-sm font-semibold text-slate-800">
+                                                        {data.motivo_reserva || "Sin consulta asignada"}
+                                                    </p>
+                                                    <p className="mt-1 text-sm font-bold text-violet-700">
+                                                        {formatearMontoReserva(data.monto_reserva)}
+                                                    </p>
+                                                </div>
                                             </div>
 
                                             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
@@ -1080,7 +1211,7 @@ export default function AgendaCitas() {
                         </div>
 
                         <div className="hidden overflow-x-auto pb-2 xl:block">
-                            <Table className="min-w-[780px] table-fixed">
+                            <Table className="min-w-[980px] table-fixed">
                                 <TableCaption className="py-4 text-xs font-medium text-slate-400">Listado de reservaciones registradas</TableCaption>
                                 <TableHeader>
                                     <TableRow className="border-b border-slate-200 bg-slate-950 hover:bg-slate-950">
@@ -1088,6 +1219,7 @@ export default function AgendaCitas() {
                                         <TableHead className="w-[76px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Hora</TableHead>
                                         <TableHead className="w-[190px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Paciente</TableHead>
                                         <TableHead className="w-[160px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Profesional</TableHead>
+                                        <TableHead className="w-[210px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Motivo y valor</TableHead>
                                         <TableHead className="w-[118px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Estado</TableHead>
                                         <TableHead className="w-[98px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Acciones</TableHead>
                                         <TableHead className="w-[78px] px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">Ficha</TableHead>
@@ -1096,7 +1228,7 @@ export default function AgendaCitas() {
                                 <TableBody>
                                     {dataLista.length === 0 && (
                                         <TableRow className="hover:bg-transparent">
-                                            <TableCell colSpan={7} className="px-4 py-14 text-center">
+                                            <TableCell colSpan={8} className="px-4 py-14 text-center">
                                                 <div className="mx-auto flex max-w-md flex-col items-center">
                                                     <span className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-400">
                                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -1148,6 +1280,19 @@ export default function AgendaCitas() {
                                                 <span className="mx-auto block max-w-[180px] truncate">
                                                     {obtenerNombreProfesionalReserva(data)}
                                                 </span>
+                                            </TableCell>
+                                            <TableCell className="px-2 py-3 text-center">
+                                                <div
+                                                    title={data.motivo_reserva || "Sin consulta asignada"}
+                                                    className="mx-auto max-w-[200px]"
+                                                >
+                                                    <span className="block truncate text-sm font-medium text-slate-700">
+                                                        {data.motivo_reserva || "Sin consulta asignada"}
+                                                    </span>
+                                                    <span className="mt-1 block text-sm font-semibold text-violet-700">
+                                                        {formatearMontoReserva(data.monto_reserva)}
+                                                    </span>
+                                                </div>
                                             </TableCell>
                                             <TableCell className="px-2 py-3 text-center">
                                                 <span
